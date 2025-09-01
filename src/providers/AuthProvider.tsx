@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { User, onAuthStateChanged, signOut as firebaseSignOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { auth } from '../config/firebase';
 import { Platform } from 'react-native';
+import { GOOGLE_CONFIG } from '../config/google';
 
 interface AuthContextType {
   user: User | null;
@@ -38,24 +40,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Handle redirect result for mobile platforms
-    const handleRedirectResult = async () => {
-      try {
-        if (Platform.OS !== 'web') {
-          const result = await getRedirectResult(auth);
-          if (result?.user) {
-            console.log('Google sign-in successful:', result.user.displayName);
-          }
-        }
-      } catch (error: any) {
-        // Only log actual errors, not normal cases
-        if (error.code !== 'auth/null-user') {
-          console.error('Redirect result error:', error);
-        }
-      }
-    };
-
-    handleRedirectResult();
+    // Configure Google Sign-In
+    GoogleSignin.configure({
+      webClientId: GOOGLE_CONFIG.webClientId,
+      offlineAccess: true,
+    });
 
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -76,21 +65,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
+      console.log('Starting Google sign-in with @react-native-google-signin...');
 
-      // Use different methods based on platform
-      if (Platform.OS === 'web') {
-        // For web, use popup
-        await signInWithPopup(auth, provider);
-      } else {
-        // For mobile, use redirect
-        await signInWithRedirect(auth, provider);
+      // Check if Google Play Services are available (Android only)
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices();
+        console.log('Google Play Services available');
       }
+
+      // Sign in with Google
+      console.log('Requesting Google sign-in...');
+      const userInfo = await GoogleSignin.signIn();
+      console.log('Google sign-in completed:', userInfo.user.name);
+
+      // Create Firebase credential from Google sign-in
+      const googleCredential = GoogleAuthProvider.credential(userInfo.idToken);
+
+      // Sign in to Firebase with the Google credential
+      const firebaseResult = await signInWithCredential(auth, googleCredential);
+      console.log('Firebase authentication successful:', firebaseResult.user.displayName);
+
     } catch (error: any) {
       console.error('Google sign-in error:', error);
-      throw new Error(error.message || 'Failed to sign in with Google');
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        throw new Error('Sign-in was cancelled by user');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        throw new Error('Sign-in is already in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        throw new Error('Google Play Services is not available');
+      } else if (error.code === statusCodes.SIGN_IN_REQUIRED) {
+        throw new Error('Sign-in is required');
+      } else {
+        throw new Error(`Google Sign-In failed: ${error.message}`);
+      }
     }
   };
 

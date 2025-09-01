@@ -69,8 +69,25 @@ export default function AuthScreen(): JSX.Element {
     } catch (error: any) {
       console.error('Google sign-in error:', error);
       Alert.alert(
-        'Google Sign-In Error',
-        error.message || 'Failed to sign in with Google. Please try again.'
+        'Google Sign-In Setup Required',
+        error.message || 'Google Sign-In needs to be configured. Please check the GOOGLE_OAUTH_SETUP.md file for complete setup instructions.',
+        [
+          {
+            text: 'Use Email/Password',
+            style: 'default'
+          },
+          {
+            text: 'Setup Guide',
+            style: 'default',
+            onPress: () => {
+              // Could open the setup guide file or show instructions
+              Alert.alert(
+                'Setup Instructions',
+                '1. Go to Firebase Console\n2. Enable Google provider\n3. Copy Web client ID\n4. Add redirect URIs in Google Cloud Console\n5. Test authentication'
+              );
+            }
+          }
+        ]
       );
     } finally {
       setGoogleLoading(false);

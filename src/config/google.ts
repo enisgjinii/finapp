@@ -5,6 +5,15 @@ export const GOOGLE_CONFIG = {
   // Web Client ID from Firebase Console
   webClientId: '525395309052-jph56iko8clbj0vtmp25f7r1mj34b0bq.apps.googleusercontent.com',
 
+  // iOS Client ID (if you have iOS app)
+  iosClientId: '',
+
+  // Android Client ID (if you have Android app)
+  androidClientId: '',
+
+  // Redirect URI scheme (matches app.json scheme)
+  redirectUri: 'myapp://',
+
   // Additional configuration (optional)
   scopes: ['profile', 'email'],
   customParameters: {
