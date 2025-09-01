@@ -28,7 +28,7 @@ export default function AccountsScreen(): JSX.Element {
       </Text>
 
       <FlatList
-        data={mockAccounts}
+        data={accounts}
         keyExtractor={(item) => item.id}
         renderItem={renderAccount}
         style={styles.list}

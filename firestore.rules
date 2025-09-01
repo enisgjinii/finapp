@@ -1,198 +1,50 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // ============================================================================
-    // HELPER FUNCTIONS
-    // ============================================================================
-
+    
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
     }
-
-    function isOwner(uid) {
-      return request.auth.uid == uid;
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
-
-    function isValidUser() {
-      return isSignedIn() &&
-             request.auth.token.email_verified == true;
+    
+    function isValidAmount(amount) {
+      return amount is number && amount >= -999999.99 && amount <= 999999.99;
     }
-
-    function isRecentRequest() {
-      return request.time < timestamp.date(2025, 12, 31);
-    }
-
-    function hasValidAmount(amount) {
-      return amount is number &&
-             amount >= -999999.99 &&
-             amount <= 999999.99;
-    }
-
-    function hasValidCurrency(currency) {
+    
+    function isValidCurrency(currency) {
       return currency in ['USD', 'EUR', 'GBP', 'TRY', 'CAD', 'AUD', 'JPY'];
     }
-
-    function isValidEmail(email) {
-      return email.matches('[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}');
-    }
-
-    // ============================================================================
-    // USER PROFILE RULES
-    // ============================================================================
-
-    match /users/{uid} {
-      // Allow read/write for authenticated users who own the document
-      allow read, write: if isValidUser() &&
-                            isOwner(uid) &&
-                            isRecentRequest();
-
-      // Validate user profile data
-      allow write: if request.resource.data.keys().hasAll(['email']) &&
-                   request.resource.data.email is string &&
-                   isValidEmail(request.resource.data.email);
-
-      // ============================================================================
-      // USER ACCOUNTS SUBCOLLECTION
-      // ============================================================================
-
+    
+    // User profiles
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && isOwner(userId);
+      
+      // User's accounts
       match /accounts/{accountId} {
-        allow read: if isValidUser() && isOwner(uid);
-
-        allow create: if isValidUser() &&
-                      isOwner(uid) &&
-                      request.resource.data.keys().hasAll(['name', 'currency']) &&
-                      request.resource.data.name is string &&
-                      request.resource.data.name.size() >= 1 &&
-                      request.resource.data.name.size() <= 50 &&
-                      hasValidCurrency(request.resource.data.currency) &&
-                      (!request.resource.data.keys().hasAny(['balance']) ||
-                       hasValidAmount(request.resource.data.balance));
-
-        allow update: if isValidUser() &&
-                      isOwner(uid) &&
-                      // Prevent changing critical fields
-                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['id', 'createdAt']) ||
-                       request.resource.data.diff(resource.data).affectedKeys().size() == 0) &&
-                      // Validate amount if present
-                      (!request.resource.data.keys().hasAny(['balance']) ||
-                       hasValidAmount(request.resource.data.balance));
-
-        allow delete: if isValidUser() && isOwner(uid);
+        allow read, write: if isSignedIn() && isOwner(userId);
       }
-
-      // ============================================================================
-      // USER TRANSACTIONS SUBCOLLECTION
-      // ============================================================================
-
+      
+      // User's transactions
       match /transactions/{transactionId} {
-        allow read: if isValidUser() && isOwner(uid);
-
-        allow create: if isValidUser() &&
-                      isOwner(uid) &&
-                      request.resource.data.keys().hasAll(['accountId', 'amount', 'date']) &&
-                      request.resource.data.accountId is string &&
-                      hasValidAmount(request.resource.data.amount) &&
-                      request.resource.data.date is timestamp &&
-                      // Ensure account exists (would need to be checked in business logic)
-                      exists(/databases/$(database)/documents/users/$(uid)/accounts/$(request.resource.data.accountId));
-
-        allow update: if isValidUser() &&
-                      isOwner(uid) &&
-                      // Prevent changing critical fields
-                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['id', 'createdAt']) ||
-                       request.resource.data.diff(resource.data).affectedKeys().size() == 0);
-
-        allow delete: if isValidUser() && isOwner(uid);
+        allow read, write: if isSignedIn() && isOwner(userId);
       }
-
-      // ============================================================================
-      // USER INSTALLMENTS SUBCOLLECTION
-      // ============================================================================
-
+      
+      // User's installments
       match /installments/{installmentId} {
-        allow read: if isValidUser() && isOwner(uid);
-
-        allow create: if isValidUser() &&
-                      isOwner(uid) &&
-                      request.resource.data.keys().hasAll(['title', 'accountId', 'monthlyAmount', 'monthsTotal']) &&
-                      request.resource.data.title is string &&
-                      request.resource.data.title.size() >= 1 &&
-                      request.resource.data.title.size() <= 100 &&
-                      request.resource.data.monthlyAmount is number &&
-                      request.resource.data.monthlyAmount > 0 &&
-                      request.resource.data.monthsTotal is int &&
-                      request.resource.data.monthsTotal >= 1 &&
-                      request.resource.data.monthsTotal <= 360 &&
-                      // Ensure account exists
-                      exists(/databases/$(database)/documents/users/$(uid)/accounts/$(request.resource.data.accountId));
-
-        allow update: if isValidUser() &&
-                      isOwner(uid) &&
-                      // Prevent changing critical fields
-                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['id', 'createdAt']) ||
-                       request.resource.data.diff(resource.data).affectedKeys().size() == 0);
-
-        allow delete: if isValidUser() && isOwner(uid);
+        allow read, write: if isSignedIn() && isOwner(userId);
       }
-
-      // ============================================================================
-      // USER SAVINGS GOALS SUBCOLLECTION
-      // ============================================================================
-
+      
+      // User's savings goals
       match /savings/{savingsId} {
-        allow read: if isValidUser() && isOwner(uid);
-
-        allow create: if isValidUser() &&
-                      isOwner(uid) &&
-                      request.resource.data.keys().hasAll(['title', 'targetAmount', 'currentAmount']) &&
-                      request.resource.data.title is string &&
-                      request.resource.data.title.size() >= 1 &&
-                      request.resource.data.title.size() <= 100 &&
-                      hasValidAmount(request.resource.data.targetAmount) &&
-                      request.resource.data.targetAmount > 0 &&
-                      hasValidAmount(request.resource.data.currentAmount) &&
-                      request.resource.data.currentAmount >= 0;
-
-        allow update: if isValidUser() &&
-                      isOwner(uid) &&
-                      // Prevent changing critical fields
-                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['id', 'createdAt']) ||
-                       request.resource.data.diff(resource.data).affectedKeys().size() == 0);
-
-        allow delete: if isValidUser() && isOwner(uid);
-      }
-
-      // ============================================================================
-      // USER IMPORT SESSIONS SUBCOLLECTION
-      // ============================================================================
-
-      match /imports/{importId} {
-        allow read: if isValidUser() && isOwner(uid);
-
-        allow create: if isValidUser() &&
-                      isOwner(uid) &&
-                      request.resource.data.keys().hasAll(['fileName', 'mapping', 'rowCount']) &&
-                      request.resource.data.fileName is string &&
-                      request.resource.data.mapping is map &&
-                      request.resource.data.rowCount is int &&
-                      request.resource.data.rowCount > 0;
-
-        allow update: if isValidUser() &&
-                      isOwner(uid) &&
-                      // Prevent changing critical fields
-                      (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['id', 'createdAt']) ||
-                       request.resource.data.diff(resource.data).affectedKeys().size() == 0);
-
-        allow delete: if isValidUser() && isOwner(uid);
+        allow read, write: if isSignedIn() && isOwner(userId);
       }
     }
-
-    // ============================================================================
-    // PUBLIC COLLECTIONS (if any)
-    // ============================================================================
-
-    // Deny all access to any other collections not explicitly defined above
+    
+    // Deny all other access
     match /{document=**} {
       allow read, write: if false;
     }

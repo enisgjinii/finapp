@@ -79,7 +79,7 @@ export default function InstallmentsScreen(): JSX.Element {
       </Text>
 
       <FlatList
-        data={mockInstallments}
+        data={installments}
         keyExtractor={(item) => item.id}
         renderItem={renderInstallment}
         style={styles.list}

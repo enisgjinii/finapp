@@ -1,6 +1,11 @@
-// Google Sign-In Configuration for Firebase
-// This is used with Firebase Auth's built-in Google provider
+import { GoogleAuthProvider } from 'firebase/auth';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 
+// Complete the auth session
+WebBrowser.maybeCompleteAuthSession();
+
+// Google Sign-In Configuration for Expo
 export const GOOGLE_CONFIG = {
   // Web Client ID from Firebase Console
   webClientId: '525395309052-jph56iko8clbj0vtmp25f7r1mj34b0bq.apps.googleusercontent.com',
@@ -12,7 +17,10 @@ export const GOOGLE_CONFIG = {
   androidClientId: '',
 
   // Redirect URI scheme (matches app.json scheme)
-  redirectUri: 'myapp://',
+  redirectUri: AuthSession.makeRedirectUri({
+    scheme: 'myapp',
+    path: 'auth'
+  }),
 
   // Additional configuration (optional)
   scopes: ['profile', 'email'],
@@ -21,7 +29,7 @@ export const GOOGLE_CONFIG = {
   }
 };
 
-// Firebase Google Sign-In Setup Instructions:
+// Expo Google Sign-In Setup Instructions:
 //
 // 1. Go to Firebase Console: https://console.firebase.google.com/
 // 2. Select your project (finapp-551d3)
@@ -39,6 +47,6 @@ export const GOOGLE_CONFIG = {
 //      }
 //    }
 //
-// That's it! Firebase handles the OAuth flow automatically.
+// 9. Use expo-auth-session for Google Sign-In instead of @react-native-google-signin
 
 export default GOOGLE_CONFIG;

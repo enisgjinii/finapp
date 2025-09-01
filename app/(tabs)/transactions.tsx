@@ -71,7 +71,7 @@ export default function TransactionsScreen(): JSX.Element {
       />
 
       <FlatList
-        data={filteredTransactions}
+        data={transactions}
         keyExtractor={(item) => item.id}
         renderItem={renderTransaction}
         style={styles.list}

@@ -66,7 +66,7 @@ export default function SavingsScreen(): JSX.Element {
       </Text>
 
       <FlatList
-        data={mockSavings}
+        data={savings}
         keyExtractor={(item) => item.id}
         renderItem={renderSavingsGoal}
         style={styles.list}
