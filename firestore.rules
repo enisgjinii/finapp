@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(uid) {
+      return request.auth.uid == uid;
+    }
+    
+    function hasValidSchema() {
+      return true; // Add specific schema validation as needed
+    }
+
+    // User profile
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      
+      // User's accounts
+      match /accounts/{accountId} {
+        allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      }
+      
+      // User's transactions
+      match /transactions/{transactionId} {
+        allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      }
+      
+      // User's installments
+      match /installments/{installmentId} {
+        allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      }
+      
+      // User's savings goals
+      match /savings/{savingsId} {
+        allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      }
+      
+      // User's import sessions
+      match /imports/{importId} {
+        allow read, write: if isSignedIn() && isOwner(uid) && hasValidSchema();
+      }
+    }
+  }
+}
