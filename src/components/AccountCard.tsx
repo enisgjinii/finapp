@@ -22,25 +22,26 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   const balanceColor = balance >= 0 ? theme.colors.primary : theme.colors.error;
 
   return (
-    <Card style={[styles.card, { backgroundColor: account.color || theme.colors.surface }]} onPress={onPress}>
+    <Card style={[styles.card, { backgroundColor: '#f9fafb', borderColor: account.color || '#e5e7eb' }]} onPress={onPress}>
       <Card.Content>
         <View style={styles.header}>
           <View style={styles.accountInfo}>
-            <Text variant="titleMedium" style={styles.accountName}>
+            <Text style={styles.accountName}>
               {account.name}
             </Text>
-            <Text variant="bodySmall" style={styles.currency}>
+            <Text style={styles.currency}>
               {account.currency}
             </Text>
           </View>
           <IconButton
             icon="pencil"
-            size={20}
+            size={18}
             onPress={onEdit}
             style={styles.editButton}
+            iconColor="#6b7280"
           />
         </View>
-        <Text variant="headlineSmall" style={[styles.balance, { color: balanceColor }]}>
+        <Text style={[styles.balance, { color: balanceColor }]}>
           {formatCurrency(balance, account.currency)}
         </Text>
       </Card.Content>
@@ -50,31 +51,40 @@ export const AccountCard: React.FC<AccountCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 16,
-    marginVertical: 8,
-    elevation: 2,
+    marginBottom: 8,
+    borderRadius: 8,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: 12,
   },
   accountInfo: {
     flex: 1,
   },
   accountName: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#111827',
   },
   currency: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginTop: 2,
   },
   editButton: {
     margin: 0,
   },
   balance: {
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
     marginTop: 4,
   },
 });

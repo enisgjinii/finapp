@@ -35,34 +35,34 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
   return (
     <Card style={styles.card}>
       <Card.Content>
-        <Text variant="headlineSmall" style={styles.year}>
+        <Text style={styles.year}>
           {year} Summary
         </Text>
-        
+
         <View style={styles.summaryRow}>
           <View style={styles.summaryItem}>
-            <Text variant="bodyMedium" style={styles.label}>
+            <Text style={styles.label}>
               Income
             </Text>
-            <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
+            <Text style={[styles.amount, { color: '#000000' }]}>
               {formatCurrency(income, currency)}
             </Text>
           </View>
 
           <View style={styles.summaryItem}>
-            <Text variant="bodyMedium" style={styles.label}>
+            <Text style={styles.label}>
               Expenses
             </Text>
-            <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.error }]}>
+            <Text style={[styles.amount, { color: '#ef4444' }]}>
               {formatCurrency(expenses, currency)}
             </Text>
           </View>
 
           <View style={styles.summaryItem}>
-            <Text variant="bodyMedium" style={styles.label}>
+            <Text style={styles.label}>
               Net
             </Text>
-            <Text variant="titleLarge" style={[styles.amount, { color: netColor }]}>
+            <Text style={[styles.amount, { color: net >= 0 ? '#000000' : '#ef4444' }]}>
               {formatCurrency(net, currency)}
             </Text>
           </View>
@@ -74,27 +74,45 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    margin: 16,
-    elevation: 2,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   year: {
     textAlign: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+    fontSize: 18,
     fontWeight: '600',
+    color: '#374151',
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
   },
   summaryItem: {
     flex: 1,
     alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
   },
   label: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.05,
   },
   amount: {
+    fontSize: 18,
     fontWeight: '700',
+    color: '#111827',
   },
 });

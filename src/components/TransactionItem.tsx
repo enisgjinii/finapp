@@ -64,7 +64,13 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({
 
 const styles = StyleSheet.create({
   item: {
-    paddingVertical: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
   },
   description: {
     flexDirection: 'row',
@@ -72,17 +78,22 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   date: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginRight: 8,
   },
   categoryChip: {
     height: 24,
+    backgroundColor: '#f9fafb',
+    borderColor: '#e5e7eb',
   },
   amountContainer: {
     justifyContent: 'center',
     alignItems: 'flex-end',
   },
   amount: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#111827',
   },
 });

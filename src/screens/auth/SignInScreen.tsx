@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Alert } from 'react-native';
 import { Text, TextInput, Button, Card } from 'react-native-paper';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
-import { auth } from '../../config/firebase';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../providers/AuthProvider';
 
 export const SignInScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+  const { signIn } = useAuth();
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -17,12 +19,16 @@ export const SignInScreen: React.FC = () => {
 
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signIn(email, password);
     } catch (error: any) {
       Alert.alert('Sign In Error', error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const navigateToSignUp = () => {
+    navigation.navigate('SignUp' as never);
   };
 
   return (
@@ -67,7 +73,7 @@ export const SignInScreen: React.FC = () => {
 
           <Button
             mode="outlined"
-            onPress={() => {/* Navigate to sign up */}}
+            onPress={navigateToSignUp}
             style={styles.button}
           >
             Create Account

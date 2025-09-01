@@ -1,28 +1,34 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Text, Card, SegmentedButtons, FAB, useTheme } from 'react-native-paper';
+import { router } from 'expo-router';
+import { useTransactions } from '../../src/hooks/useTransactions';
+import { useAccounts } from '../../src/hooks/useAccounts';
+import { YearSummary } from '../../src/components/YearSummary';
+import { calculateBalance } from '../../src/utils/money';
 
-const mockAccounts = [
-  { id: '1', name: 'TEB', currency: 'TRY', color: '#E3F2FD', balance: 15420.50 },
-  { id: '2', name: 'Paysera', currency: 'EUR', color: '#E8F5E8', balance: 2845.30 },
-  { id: '3', name: 'OneFor', currency: 'USD', color: '#FFF3E0', balance: 1250.00 },
-  { id: '4', name: 'PayPal', currency: 'USD', color: '#E1F5FE', balance: 840.20 },
-  { id: '5', name: 'Cash', currency: 'TRY', color: '#F3E5F5', balance: 560.00 },
-];
-
-const mockTransactions = [
-  { id: '1', description: 'Salary Payment', amount: 8500, account: 'TEB', date: '2025-01-15' },
-  { id: '2', description: 'Grocery Shopping', amount: -245, account: 'Cash', date: '2025-01-14' },
-  { id: '3', description: 'Freelance Payment', amount: 1200, account: 'PayPal', date: '2025-01-13' },
-  { id: '4', description: 'Rent Payment', amount: -2500, account: 'TEB', date: '2025-01-12' },
-];
-
-export default function DashboardScreen() {
-  const [selectedYear, setSelectedYear] = useState('2025');
+export default function DashboardScreen(): JSX.Element {
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const theme = useTheme();
+  const { transactions } = useTransactions();
+  const { accounts } = useAccounts();
 
-  const totalIncome = 9700;
-  const totalExpenses = 2745;
+  const years = Array.from(
+    new Set(transactions.map(tx => tx.date.getFullYear()))
+  ).sort((a, b) => b - a);
+
+  const currentYearTransactions = transactions.filter(
+    tx => tx.date.getFullYear() === selectedYear
+  );
+
+  const totalIncome = currentYearTransactions
+    .filter(tx => tx.amount > 0)
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const totalExpenses = Math.abs(currentYearTransactions
+    .filter(tx => tx.amount < 0)
+    .reduce((sum, tx) => sum + tx.amount, 0));
+
   const netIncome = totalIncome - totalExpenses;
 
   return (
@@ -32,16 +38,17 @@ export default function DashboardScreen() {
           Dashboard
         </Text>
 
-        <SegmentedButtons
-          value={selectedYear}
-          onValueChange={setSelectedYear}
-          buttons={[
-            { value: '2023', label: '2023' },
-            { value: '2024', label: '2024' },
-            { value: '2025', label: '2025' },
-          ]}
-          style={styles.yearSelector}
-        />
+        {years.length > 0 && (
+          <SegmentedButtons
+            value={selectedYear.toString()}
+            onValueChange={(value) => setSelectedYear(parseInt(value))}
+            buttons={years.slice(0, 3).map(year => ({
+              value: year.toString(),
+              label: year.toString(),
+            }))}
+            style={styles.yearSelector}
+          />
+        )}
 
         <Card style={styles.summaryCard}>
           <Card.Content>
@@ -80,14 +87,24 @@ export default function DashboardScreen() {
           </Card.Content>
         </Card>
 
+        <YearSummary
+          year={selectedYear}
+          transactions={currentYearTransactions}
+          currency="USD"
+        />
+
         <Card style={styles.accountsCard}>
           <Card.Content>
             <Text variant="titleLarge" style={styles.sectionTitle}>
               Account Balances
             </Text>
             
-            {mockAccounts.map(account => (
-              <Card key={account.id} style={[styles.accountCard, { backgroundColor: account.color }]}>
+            {accounts.map(account => (
+              <Card
+                key={account.id}
+                style={[styles.accountCard, { backgroundColor: account.color || '#E3F2FD' }]}
+                onPress={() => router.push(`/accounts/${account.id}`)}
+              >
                 <Card.Content>
                   <View style={styles.accountRow}>
                     <View style={styles.accountInfo}>
@@ -98,8 +115,8 @@ export default function DashboardScreen() {
                         {account.currency}
                       </Text>
                     </View>
-                    <Text variant="titleLarge" style={[styles.balance, { color: account.balance >= 0 ? theme.colors.primary : theme.colors.error }]}>
-                      {account.currency === 'TRY' ? '₺' : account.currency === 'EUR' ? '€' : '$'}{account.balance.toLocaleString()}
+                    <Text variant="titleLarge" style={[styles.balance, { color: calculateBalance(transactions, account.id) >= 0 ? theme.colors.primary : theme.colors.error }]}>
+                      ${calculateBalance(transactions, account.id).toLocaleString()}
                     </Text>
                   </View>
                 </Card.Content>
@@ -114,22 +131,29 @@ export default function DashboardScreen() {
               Recent Transactions
             </Text>
             
-            {mockTransactions.map(transaction => (
-              <View key={transaction.id} style={styles.transactionRow}>
-                <View style={styles.transactionInfo}>
-                  <Text variant="titleMedium">{transaction.description}</Text>
-                  <Text variant="bodySmall" style={styles.transactionMeta}>
-                    {transaction.date} • {transaction.account}
+            {transactions.slice(0, 5).map(transaction => {
+              const account = accounts.find(a => a.id === transaction.accountId);
+              return (
+                <View
+                  key={transaction.id}
+                  style={styles.transactionRow}
+                  onTouchEnd={() => router.push(`/transactions/${transaction.id}`)}
+                >
+                  <View style={styles.transactionInfo}>
+                    <Text variant="titleMedium">{transaction.description || 'No description'}</Text>
+                    <Text variant="bodySmall" style={styles.transactionMeta}>
+                      {transaction.date.toLocaleDateString()} • {account?.name || 'Unknown Account'}
+                    </Text>
+                  </View>
+                  <Text variant="titleMedium" style={[
+                    styles.transactionAmount,
+                    { color: transaction.amount >= 0 ? theme.colors.primary : theme.colors.error }
+                  ]}>
+                    {transaction.amount >= 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
                   </Text>
                 </View>
-                <Text variant="titleMedium" style={[
-                  styles.transactionAmount,
-                  { color: transaction.amount >= 0 ? theme.colors.primary : theme.colors.error }
-                ]}>
-                  {transaction.amount >= 0 ? '+' : ''}{transaction.amount}
-                </Text>
-              </View>
-            ))}
+              );
+            })}
           </Card.Content>
         </Card>
       </ScrollView>
@@ -137,7 +161,7 @@ export default function DashboardScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {/* Navigate to add transaction */}}
+        onPress={() => router.push('/transactions/add')}
       />
     </View>
   );
@@ -146,103 +170,154 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
   },
   title: {
     textAlign: 'center',
-    marginTop: 40,
-    marginBottom: 20,
-    fontWeight: '600',
+    marginTop: 48,
+    marginBottom: 24,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: -0.025,
   },
   yearSelector: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   summaryCard: {
-    margin: 16,
-    elevation: 2,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   summaryTitle: {
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
+    fontSize: 18,
     fontWeight: '600',
+    color: '#374151',
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    gap: 16,
   },
   summaryItem: {
     flex: 1,
     alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
   },
   label: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.05,
   },
   amount: {
+    fontSize: 18,
     fontWeight: '700',
+    color: '#111827',
   },
   accountsCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    elevation: 2,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   sectionTitle: {
-    marginBottom: 16,
+    fontSize: 18,
     fontWeight: '600',
+    color: '#374151',
+    marginBottom: 16,
   },
   accountCard: {
-    marginBottom: 12,
-    elevation: 1,
+    marginBottom: 8,
+    borderRadius: 8,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
   },
   accountRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 16,
   },
   accountInfo: {
     flex: 1,
   },
   accountName: {
+    fontSize: 16,
     fontWeight: '600',
+    color: '#111827',
+    marginBottom: 2,
   },
   currency: {
-    opacity: 0.7,
-    marginTop: 2,
+    fontSize: 12,
+    color: '#6b7280',
   },
   balance: {
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
   },
   recentCard: {
-    marginHorizontal: 16,
-    marginBottom: 80,
-    elevation: 2,
+    marginHorizontal: 20,
+    marginBottom: 100,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
   },
   transactionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderBottomColor: '#f3f4f6',
   },
   transactionInfo: {
     flex: 1,
   },
   transactionMeta: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginTop: 2,
   },
   transactionAmount: {
+    fontSize: 16,
     fontWeight: '600',
   },
   fab: {
     position: 'absolute',
-    margin: 16,
+    margin: 20,
     right: 0,
     bottom: 0,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    width: 56,
+    height: 56,
   },
 });

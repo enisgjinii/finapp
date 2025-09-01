@@ -1,53 +1,50 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Text, Searchbar, FAB, SegmentedButtons, Card } from 'react-native-paper';
+import { router } from 'expo-router';
+import { useTransactions } from '../../src/hooks/useTransactions';
+import { useAccounts } from '../../src/hooks/useAccounts';
 
-const mockTransactions = [
-  { id: '1', description: 'Salary Payment', amount: 8500, account: 'TEB', date: '2025-01-15', category: 'Salary' },
-  { id: '2', description: 'Grocery Shopping', amount: -245, account: 'Cash', date: '2025-01-14', category: 'Food' },
-  { id: '3', description: 'Freelance Payment', amount: 1200, account: 'PayPal', date: '2025-01-13', category: 'Freelance' },
-  { id: '4', description: 'Rent Payment', amount: -2500, account: 'TEB', date: '2025-01-12', category: 'Housing' },
-  { id: '5', description: 'Coffee Shop', amount: -45, account: 'Cash', date: '2025-01-11', category: 'Food' },
-  { id: '6', description: 'Investment Return', amount: 350, account: 'OneFor', date: '2025-01-10', category: 'Investment' },
-];
-
-export default function TransactionsScreen() {
+export default function TransactionsScreen(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
 
-  const filteredTransactions = mockTransactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         transaction.category.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesType = filterType === 'all' || 
-                       (filterType === 'income' && transaction.amount >= 0) ||
-                       (filterType === 'expense' && transaction.amount < 0);
+  const filters = {
+    searchQuery: searchQuery || undefined,
+    type: filterType === 'all' ? undefined : (filterType as 'income' | 'expense'),
+  };
 
-    return matchesSearch && matchesType;
-  });
+  const { transactions, loading } = useTransactions(filters);
+  const { accounts } = useAccounts();
 
-  const renderTransaction = ({ item }: { item: any }) => (
-    <Card style={styles.transactionCard}>
-      <Card.Content>
-        <View style={styles.transactionRow}>
-          <View style={styles.transactionInfo}>
-            <Text variant="titleMedium" style={styles.transactionDescription}>
-              {item.description}
-            </Text>
-            <Text variant="bodySmall" style={styles.transactionMeta}>
-              {item.date} • {item.account} • {item.category}
+  const renderTransaction = ({ item }: { item: any }) => {
+    const account = accounts.find(a => a.id === item.accountId);
+    return (
+      <Card
+        style={styles.transactionCard}
+        onPress={() => router.push(`/transactions/${item.id}`)}
+      >
+        <Card.Content>
+          <View style={styles.transactionRow}>
+            <View style={styles.transactionInfo}>
+              <Text variant="titleMedium" style={styles.transactionDescription}>
+                {item.description || 'No description'}
+              </Text>
+              <Text variant="bodySmall" style={styles.transactionMeta}>
+                {item.date.toLocaleDateString()} • {account?.name || 'Unknown Account'} • {item.category || 'No category'}
+              </Text>
+            </View>
+            <Text variant="titleMedium" style={[
+              styles.transactionAmount,
+              { color: item.amount >= 0 ? '#006D77' : '#D32F2F' }
+            ]}>
+              {item.amount >= 0 ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
             </Text>
           </View>
-          <Text variant="titleMedium" style={[
-            styles.transactionAmount,
-            { color: item.amount >= 0 ? '#006D77' : '#D32F2F' }
-          ]}>
-            {item.amount >= 0 ? '+' : ''}{item.amount}
-          </Text>
-        </View>
-      </Card.Content>
-    </Card>
-  );
+        </Card.Content>
+      </Card>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -85,7 +82,7 @@ export default function TransactionsScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {/* Navigate to add transaction */}}
+        onPress={() => router.push('/transactions/add')}
       />
     </View>
   );
@@ -94,56 +91,74 @@ export default function TransactionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   title: {
     textAlign: 'center',
-    marginTop: 40,
-    marginBottom: 20,
-    fontWeight: '600',
+    marginTop: 48,
+    marginBottom: 24,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: -0.025,
   },
   searchbar: {
-    marginHorizontal: 16,
+    marginHorizontal: 20,
     marginBottom: 16,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
   },
   filterButtons: {
-    marginHorizontal: 16,
-    marginBottom: 16,
+    marginHorizontal: 20,
+    marginBottom: 20,
   },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   transactionCard: {
     marginBottom: 8,
-    elevation: 2,
+    borderRadius: 8,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#f3f4f6',
   },
   transactionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 16,
   },
   transactionInfo: {
     flex: 1,
   },
   transactionDescription: {
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 2,
   },
   transactionMeta: {
-    opacity: 0.7,
-    marginTop: 2,
+    fontSize: 12,
+    color: '#6b7280',
   },
   transactionAmount: {
-    fontWeight: '600',
     fontSize: 16,
+    fontWeight: '600',
   },
   fab: {
     position: 'absolute',
-    margin: 16,
+    margin: 20,
     right: 0,
     bottom: 0,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    width: 56,
+    height: 56,
   },
 });

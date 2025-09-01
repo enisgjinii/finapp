@@ -1,82 +1,68 @@
 import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Text, Card, Button, FAB, useTheme, ProgressBar } from 'react-native-paper';
+import { router } from 'expo-router';
+import { useInstallments } from '../../src/hooks/useInstallments';
+import { useAccounts } from '../../src/hooks/useAccounts';
+import { formatCurrency } from '../../src/utils/money';
+import { formatDate } from '../../src/utils/date';
 
-const mockInstallments = [
-  {
-    id: '1',
-    title: 'iPhone 15 Pro',
-    account: 'TEB',
-    monthlyAmount: 850,
-    monthsPaid: 3,
-    monthsTotal: 12,
-    nextDueDate: '2025-02-15',
-    principal: 10200,
-  },
-  {
-    id: '2',
-    title: 'MacBook Pro',
-    account: 'Paysera',
-    monthlyAmount: 1200,
-    monthsPaid: 8,
-    monthsTotal: 24,
-    nextDueDate: '2025-02-01',
-    principal: 28800,
-  },
-  {
-    id: '3',
-    title: 'Car Loan',
-    account: 'TEB',
-    monthlyAmount: 2200,
-    monthsPaid: 15,
-    monthsTotal: 60,
-    nextDueDate: '2025-02-10',
-    principal: 132000,
-  },
-];
-
-export default function InstallmentsScreen() {
+export default function InstallmentsScreen(): JSX.Element {
   const theme = useTheme();
+  const { installments, payInstallment } = useInstallments();
+  const { accounts } = useAccounts();
+
+  const handlePayInstallment = async (installmentId: string) => {
+    try {
+      await payInstallment.mutateAsync(installmentId);
+    } catch (error) {
+      console.error('Error paying installment:', error);
+    }
+  };
 
   const renderInstallment = ({ item }: { item: any }) => {
-    const progress = (item.monthsPaid / item.monthsTotal);
-    const progressPercentage = Math.round(progress * 100);
+    const account = accounts.find(a => a.id === item.accountId);
+    const progress = (item.monthsPaid / item.monthsTotal) * 100;
 
     return (
-      <Card style={styles.card}>
+      <Card
+        style={styles.card}
+        onPress={() => router.push(`/installments/${item.id}`)}
+      >
         <Card.Content>
           <View style={styles.header}>
             <Text variant="titleLarge" style={styles.title}>
               {item.title}
             </Text>
             <Text variant="bodyMedium" style={styles.account}>
-              {item.account}
+              {account?.name}
             </Text>
           </View>
 
           <View style={styles.details}>
             <Text variant="titleMedium" style={styles.amount}>
-              ₺{item.monthlyAmount.toLocaleString()} / month
+              {formatCurrency(item.monthlyAmount)} / month
             </Text>
             <Text variant="bodyMedium" style={styles.progress}>
-              {item.monthsPaid} of {item.monthsTotal} payments ({progressPercentage}%)
+              {item.monthsPaid} of {item.monthsTotal} payments
             </Text>
           </View>
 
           <ProgressBar
-            progress={progress}
+            progress={item.monthsPaid / item.monthsTotal}
             color={theme.colors.primary}
             style={styles.progressBar}
           />
 
           <View style={styles.footer}>
             <Text variant="bodyMedium">
-              Next payment: {item.nextDueDate}
+              Next: {formatDate(item.nextDueDate)}
             </Text>
             <Button
               mode="contained"
               compact
-              onPress={() => {/* Pay installment */}}
+              onPress={() => handlePayInstallment(item.id)}
+              disabled={payInstallment.isPending}
             >
               Pay Now
             </Button>
@@ -104,7 +90,7 @@ export default function InstallmentsScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {/* Navigate to add installment */}}
+        onPress={() => router.push('/installments/add')}
       />
     </View>
   );
@@ -113,49 +99,64 @@ export default function InstallmentsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   screenTitle: {
     textAlign: 'center',
-    marginTop: 40,
-    marginBottom: 20,
-    fontWeight: '600',
+    marginTop: 48,
+    marginBottom: 24,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: -0.025,
   },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   card: {
     marginBottom: 12,
-    elevation: 2,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 20,
   },
   header: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
+    fontSize: 18,
     fontWeight: '600',
+    color: '#111827',
   },
   account: {
-    opacity: 0.7,
+    fontSize: 14,
+    color: '#6b7280',
     marginTop: 2,
   },
   details: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   amount: {
+    fontSize: 16,
     fontWeight: '600',
-    color: '#006D77',
+    color: '#111827',
   },
   progress: {
-    opacity: 0.7,
+    fontSize: 12,
+    color: '#6b7280',
     marginTop: 4,
   },
   progressBar: {
-    height: 8,
-    borderRadius: 4,
+    height: 6,
+    backgroundColor: '#f3f4f6',
+    borderRadius: 3,
     marginBottom: 16,
   },
   footer: {
@@ -165,8 +166,12 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    margin: 16,
+    margin: 20,
     right: 0,
     bottom: 0,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    width: 56,
+    height: 56,
   },
 });

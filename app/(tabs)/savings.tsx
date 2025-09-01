@@ -1,43 +1,24 @@
 import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Text, Card, ProgressBar, FAB, useTheme } from 'react-native-paper';
+import { router } from 'expo-router';
+import { useSavings } from '../../src/hooks/useSavings';
+import { formatCurrency } from '../../src/utils/money';
+import { formatDate } from '../../src/utils/date';
 
-const mockSavings = [
-  {
-    id: '1',
-    title: 'Emergency Fund',
-    currentAmount: 8500,
-    targetAmount: 20000,
-    dueDate: '2025-12-31',
-    notes: 'For unexpected expenses',
-  },
-  {
-    id: '2',
-    title: 'Vacation Fund',
-    currentAmount: 2400,
-    targetAmount: 5000,
-    dueDate: '2025-07-01',
-    notes: 'Summer vacation in Europe',
-  },
-  {
-    id: '3',
-    title: 'New Laptop',
-    currentAmount: 1200,
-    targetAmount: 3500,
-    dueDate: '2025-06-01',
-    notes: 'MacBook Pro upgrade',
-  },
-];
-
-export default function SavingsScreen() {
+export default function SavingsScreen(): JSX.Element {
   const theme = useTheme();
+  const { savings } = useSavings();
 
   const renderSavingsGoal = ({ item }: { item: any }) => {
     const progress = Math.min(item.currentAmount / item.targetAmount, 1);
     const progressPercentage = Math.round(progress * 100);
 
     return (
-      <Card style={styles.card}>
+      <Card
+        style={styles.card}
+        onPress={() => router.push(`/savings/${item.id}`)}
+      >
         <Card.Content>
           <View style={styles.header}>
             <Text variant="titleLarge" style={styles.title}>
@@ -50,14 +31,14 @@ export default function SavingsScreen() {
 
           <View style={styles.amounts}>
             <Text variant="titleMedium" style={styles.currentAmount}>
-              ₺{item.currentAmount.toLocaleString()}
+              {formatCurrency(item.currentAmount)}
             </Text>
             <Text variant="bodyMedium" style={styles.targetAmount}>
-              of ₺{item.targetAmount.toLocaleString()}
+              of {formatCurrency(item.targetAmount)}
             </Text>
             {item.dueDate && (
               <Text variant="bodySmall" style={styles.dueDate}>
-                Target: {item.dueDate}
+                Target: {formatDate(item.dueDate)}
               </Text>
             )}
           </View>
@@ -96,7 +77,7 @@ export default function SavingsScreen() {
       <FAB
         icon="plus"
         style={styles.fab}
-        onPress={() => {/* Navigate to add savings goal */}}
+        onPress={() => router.push('/savings/add')}
       />
     </View>
   );
@@ -105,67 +86,88 @@ export default function SavingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#ffffff',
   },
   screenTitle: {
     textAlign: 'center',
-    marginTop: 40,
-    marginBottom: 20,
-    fontWeight: '600',
+    marginTop: 48,
+    marginBottom: 24,
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: -0.025,
   },
   list: {
     flex: 1,
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingHorizontal: 20,
+    paddingBottom: 100,
   },
   card: {
     marginBottom: 12,
-    elevation: 2,
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    padding: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   title: {
+    fontSize: 18,
     fontWeight: '600',
+    color: '#111827',
     flex: 1,
   },
   percentage: {
+    fontSize: 16,
     fontWeight: '700',
+    color: '#000000',
   },
   amounts: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   currentAmount: {
+    fontSize: 20,
     fontWeight: '600',
-    color: '#006D77',
+    color: '#111827',
   },
   targetAmount: {
-    opacity: 0.7,
+    fontSize: 14,
+    color: '#6b7280',
     marginTop: 2,
   },
   dueDate: {
-    opacity: 0.7,
-    marginTop: 4,
     fontSize: 12,
+    color: '#6b7280',
+    marginTop: 4,
   },
   progressBar: {
-    height: 8,
-    borderRadius: 4,
-    marginBottom: 12,
+    height: 6,
+    borderRadius: 3,
+    marginBottom: 16,
+    backgroundColor: '#f3f4f6',
   },
   notes: {
+    fontSize: 14,
+    color: '#6b7280',
     fontStyle: 'italic',
-    opacity: 0.8,
   },
   fab: {
     position: 'absolute',
-    margin: 16,
+    margin: 20,
     right: 0,
     bottom: 0,
+    backgroundColor: '#000000',
+    borderRadius: 12,
+    width: 56,
+    height: 56,
   },
 });
