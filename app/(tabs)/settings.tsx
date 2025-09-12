@@ -87,18 +87,18 @@ export default function SettingsScreen(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.container, { backgroundColor: paperTheme.colors.background }]} edges={['top']}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
+        <Text variant="headlineMedium" style={[styles.title, { color: paperTheme.colors.onBackground }]}>
           Settings
         </Text>
 
       <Card style={[styles.settingsCard, {
-        backgroundColor: theme.colors.surface,
-        borderColor: theme.colors.outline
+        backgroundColor: paperTheme.colors.surface,
+        borderColor: paperTheme.colors.outline
       }]}>
         <Card.Content>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Appearance
           </Text>
 
@@ -132,7 +132,7 @@ export default function SettingsScreen(): React.JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Notifications
           </Text>
 
@@ -144,7 +144,7 @@ export default function SettingsScreen(): React.JSX.Element {
               <Switch
                 value={notifications}
                 onValueChange={setNotifications}
-                color={theme.colors.primary}
+                color={paperTheme.colors.primary}
               />
             )}
             style={styles.listItem}
@@ -152,7 +152,7 @@ export default function SettingsScreen(): React.JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Security
           </Text>
 
@@ -164,7 +164,7 @@ export default function SettingsScreen(): React.JSX.Element {
               <Switch
                 value={biometricAuth}
                 onValueChange={setBiometricAuth}
-                color={theme.colors.primary}
+                color={paperTheme.colors.primary}
               />
             )}
             style={styles.listItem}
@@ -172,7 +172,7 @@ export default function SettingsScreen(): React.JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Data Management
           </Text>
 
@@ -184,7 +184,7 @@ export default function SettingsScreen(): React.JSX.Element {
               <Switch
                 value={autoBackup}
                 onValueChange={setAutoBackup}
-                color={theme.colors.primary}
+                color={paperTheme.colors.primary}
               />
             )}
             style={styles.listItem}
@@ -209,15 +209,15 @@ export default function SettingsScreen(): React.JSX.Element {
           <List.Item
             title="Clear All Data"
             description="Permanently delete all your data"
-            left={(props) => <List.Icon {...props} icon={Trash2} color={theme.colors.error} />}
+            left={(props) => <List.Icon {...props} icon={Trash2} color={paperTheme.colors.error} />}
             onPress={handleClearData}
             style={styles.listItem}
-            titleStyle={{ color: theme.colors.error }}
+            titleStyle={{ color: paperTheme.colors.error }}
           />
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Currency & Region
           </Text>
 
@@ -239,7 +239,7 @@ export default function SettingsScreen(): React.JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
             Support & About
           </Text>
 
@@ -270,20 +270,20 @@ export default function SettingsScreen(): React.JSX.Element {
       </Card>
 
       <Card style={[styles.infoCard, {
-        backgroundColor: theme.colors.surface,
-        borderColor: theme.colors.outline
+        backgroundColor: paperTheme.colors.surface,
+        borderColor: paperTheme.colors.outline
       }]}>
         <Card.Content>
-          <Text variant="titleMedium" style={[styles.infoTitle, { color: theme.colors.onSurface }]}>
+          <Text variant="titleMedium" style={[styles.infoTitle, { color: paperTheme.colors.onSurface }]}>
             App Information
           </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
             Version: 1.0.0
           </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
             Build: 2024.1.0
           </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
             Platform: React Native + Expo
           </Text>
         </Card.Content>
