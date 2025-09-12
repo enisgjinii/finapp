@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
-import { Text, Card, Button, FAB, useTheme, ProgressBar } from 'react-native-paper';
+import { Text, Card, Button, useTheme, ProgressBar } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useInstallments } from '../../src/hooks/useInstallments';
 import { useAccounts } from '../../src/hooks/useAccounts';
@@ -89,11 +89,6 @@ export default function InstallmentsScreen(): React.JSX.Element {
         contentContainerStyle={styles.listContent}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push('/installments/add')}
-      />
     </View>
   );
 }
@@ -115,7 +110,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 120, // Increased for tab bar + FAB
+    paddingBottom: 20, // Space for tab bar
   },
   card: {
     marginBottom: 12,
@@ -156,14 +151,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  fab: {
-    position: 'absolute',
-    margin: 20,
-    right: 0,
-    bottom: 80, // Position above tab bar
-    borderRadius: 12,
-    width: 56,
-    height: 56,
   },
 });

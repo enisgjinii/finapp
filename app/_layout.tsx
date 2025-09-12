@@ -8,6 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryProvider } from '../src/providers/QueryProvider';
 import { AuthProvider } from '../src/providers/AuthProvider';
 import { ThemeProvider, useTheme } from '../src/providers/ThemeProvider';
+import { CurrencyProvider } from '../src/providers/CurrencyProvider';
 import { useAuth } from '../src/providers/AuthProvider';
 
 function AppLayout(): React.JSX.Element {
@@ -40,11 +41,13 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <ThemeProvider>
-        <AuthProvider>
-          <QueryProvider>
-            <AppLayout />
-          </QueryProvider>
-        </AuthProvider>
+        <CurrencyProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <AppLayout />
+            </QueryProvider>
+          </AuthProvider>
+        </CurrencyProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );

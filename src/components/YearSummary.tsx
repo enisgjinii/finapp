@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
+import { Card, Text, useTheme as usePaperTheme } from 'react-native-paper';
 import { Transaction } from '../types';
-import { formatCurrency } from '../utils/money';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 interface YearSummaryProps {
   year: number;
@@ -13,9 +13,10 @@ interface YearSummaryProps {
 export const YearSummary: React.FC<YearSummaryProps> = ({
   year,
   transactions,
-  currency = 'USD',
+  currency,
 }) => {
-  const theme = useTheme();
+  const theme = usePaperTheme();
+  const { formatCurrency } = useCurrency();
 
   const yearTransactions = transactions.filter(
     tx => tx.date.getFullYear() === year
@@ -45,7 +46,7 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
               Income
             </Text>
             <Text style={[styles.amount, { color: '#000000' }]}>
-              {formatCurrency(income, currency)}
+              {formatCurrency(income, currency as any)}
             </Text>
           </View>
 
@@ -54,7 +55,7 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
               Expenses
             </Text>
             <Text style={[styles.amount, { color: '#ef4444' }]}>
-              {formatCurrency(expenses, currency)}
+              {formatCurrency(expenses, currency as any)}
             </Text>
           </View>
 
@@ -63,7 +64,7 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
               Net
             </Text>
             <Text style={[styles.amount, { color: net >= 0 ? '#000000' : '#ef4444' }]}>
-              {formatCurrency(net, currency)}
+              {formatCurrency(net, currency as any)}
             </Text>
           </View>
         </View>

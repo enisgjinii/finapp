@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { Text, Avatar, useTheme as usePaperTheme, Portal, Modal, Divider } from 'react-native-paper';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../providers/AuthProvider';
 import { useTheme } from '../providers/ThemeProvider';
 import {
@@ -70,6 +71,7 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
   const { user, signOut } = useAuth();
   const theme = usePaperTheme();
   const pathname = usePathname();
+  const insets = useSafeAreaInsets();
   const slideAnim = React.useRef(new Animated.Value(-DRAWER_WIDTH)).current;
 
   React.useEffect(() => {
@@ -124,7 +126,10 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
   return (
     <View style={styles.container}>
       {/* Header with Menu Button */}
-      <View style={[styles.header, { backgroundColor: theme.colors.primary }]}>
+      <View style={[styles.header, { 
+        backgroundColor: theme.colors.primary,
+        paddingTop: insets.top + 12
+      }]}>
         <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
           <Menu color={theme.colors.onPrimary} size={24} />
         </TouchableOpacity>
@@ -162,8 +167,11 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
         ]}
       >
         {/* User Profile Section */}
-        <View style={[styles.userSection, { backgroundColor: theme.colors.primaryContainer }]}>
-          <TouchableOpacity onPress={closeDrawer} style={styles.closeButton}>
+        <View style={[styles.userSection, { 
+          backgroundColor: theme.colors.primaryContainer,
+          paddingTop: insets.top + 20
+        }]}>
+          <TouchableOpacity onPress={closeDrawer} style={[styles.closeButton, { top: insets.top + 16 }]}>
             <X color={theme.colors.onPrimaryContainer} size={24} />
           </TouchableOpacity>
           <Avatar.Text
@@ -225,11 +233,13 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
         <Divider style={{ marginVertical: 8 }} />
 
         {/* Logout */}
-        <DrawerItem
-          label="Logout"
-          icon={LogOut}
-          onPress={handleLogout}
-        />
+        <View style={{ paddingBottom: insets.bottom + 16 }}>
+          <DrawerItem
+            label="Logout"
+            icon={LogOut}
+            onPress={handleLogout}
+          />
+        </View>
       </Animated.View>
     </View>
   );
@@ -243,8 +253,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingTop: 50, // Account for status bar
+    paddingBottom: 12,
   },
   menuButton: {
     padding: 8,
@@ -282,13 +291,11 @@ const styles = StyleSheet.create({
   },
   userSection: {
     padding: 20,
-    paddingTop: 60,
     paddingBottom: 20,
     position: 'relative',
   },
   closeButton: {
     position: 'absolute',
-    top: 16,
     right: 16,
     padding: 8,
   },

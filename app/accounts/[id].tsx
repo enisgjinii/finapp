@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, FlatList } from 'react-native';
-import { Text, Card, Chip, Button, FAB, useTheme } from 'react-native-paper';
+import { Text, Card, Chip, Button, useTheme } from 'react-native-paper';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAccounts } from '../../src/hooks/useAccounts';
 import { useTransactions } from '../../src/hooks/useTransactions';
@@ -153,11 +153,6 @@ export default function AccountDetailsScreen(): React.JSX.Element {
         )}
       </ScrollView>
 
-      <FAB
-        icon="pencil"
-        style={styles.fab}
-        onPress={() => router.push(`/accounts/${id}/edit`)}
-      />
     </View>
   );
 }
@@ -275,11 +270,5 @@ const styles = StyleSheet.create({
   emptyText: {
     textAlign: 'center',
     opacity: 0.7,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 16,
-    right: 0,
-    bottom: 0,
   },
 });

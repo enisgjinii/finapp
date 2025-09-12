@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Card, Text, IconButton, useTheme } from 'react-native-paper';
+import { Card, Text, IconButton, useTheme as usePaperTheme } from 'react-native-paper';
 import { Account } from '../types';
-import { formatCurrency } from '../utils/money';
+import { useCurrency } from '../providers/CurrencyProvider';
 
 interface AccountCardProps {
   account: Account;
@@ -17,7 +17,8 @@ export const AccountCard: React.FC<AccountCardProps> = ({
   onPress,
   onEdit,
 }) => {
-  const theme = useTheme();
+  const theme = usePaperTheme();
+  const { formatCurrency } = useCurrency();
 
   const balanceColor = balance >= 0 ? theme.colors.primary : theme.colors.error;
 
@@ -42,7 +43,7 @@ export const AccountCard: React.FC<AccountCardProps> = ({
           />
         </View>
         <Text style={[styles.balance, { color: balanceColor }]}>
-          {formatCurrency(balance, account.currency)}
+          {formatCurrency(balance, account.currency as any)}
         </Text>
       </Card.Content>
     </Card>

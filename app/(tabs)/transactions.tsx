@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Card, FAB, useTheme } from 'react-native-paper';
+import { Text, Card, useTheme } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
@@ -256,11 +256,6 @@ export default function MoneyScreen(): React.JSX.Element {
 
       </ScrollView>
 
-      <FAB
-        icon={Plus}
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push('/transactions/add')}
-      />
     </View>
   );
 }
@@ -451,14 +446,5 @@ const styles = StyleSheet.create({
   progressFill: {
     height: '100%',
     borderRadius: 2,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 20,
-    right: 0,
-    bottom: 80,
-    borderRadius: 12,
-    width: 56,
-    height: 56,
   },
 });

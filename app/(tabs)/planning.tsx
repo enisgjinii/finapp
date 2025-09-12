@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Card, SegmentedButtons, useTheme, FAB } from 'react-native-paper';
+import { Text, Card, SegmentedButtons, useTheme } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
@@ -108,7 +108,7 @@ export default function InsightsScreen(): React.JSX.Element {
                 <View style={styles.summaryRow}>
                   <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
                     <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
-                      Income
+                      Incomes
                     </Text>
                     <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
                       ₺{totalIncome.toLocaleString()}
@@ -317,11 +317,6 @@ export default function InsightsScreen(): React.JSX.Element {
 
       </ScrollView>
 
-      <FAB
-        icon={Plus}
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push(activeView === 'reports' ? '/transactions/add' : '/installments/add')}
-      />
     </View>
   );
 }
@@ -543,14 +538,5 @@ const styles = StyleSheet.create({
   miniProgressFill: {
     height: '100%',
     borderRadius: 2,
-  },
-  fab: {
-    position: 'absolute',
-    margin: 20,
-    right: 0,
-    bottom: 80,
-    borderRadius: 12,
-    width: 56,
-    height: 56,
   },
 });

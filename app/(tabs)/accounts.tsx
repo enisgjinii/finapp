@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
-import { Text, Card, FAB, IconButton, useTheme } from 'react-native-paper';
+import { Text, Card, IconButton, useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAccounts } from '../../src/hooks/useAccounts';
@@ -37,11 +37,6 @@ export default function AccountsScreen(): React.JSX.Element {
         contentContainerStyle={styles.listContent}
       />
 
-      <FAB
-        icon="plus"
-        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
-        onPress={() => router.push('/accounts/add')}
-      />
     </SafeAreaView>
   );
 }
@@ -63,15 +58,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 120, // Increased for tab bar + FAB
-  },
-  fab: {
-    position: 'absolute',
-    margin: 20,
-    right: 0,
-    bottom: 80, // Position above tab bar
-    borderRadius: 12,
-    width: 56,
-    height: 56,
+    paddingBottom: 20, // Space for tab bar
   },
 });

@@ -3,6 +3,7 @@ import { StyleSheet, View, ScrollView, Alert } from 'react-native';
 import { Text, Card, List, Switch, Button, Divider, useTheme as usePaperTheme, SegmentedButtons } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../src/providers/ThemeProvider';
+import { useCurrency, CURRENCIES } from '../../src/providers/CurrencyProvider';
 import { 
   Bell, 
   Moon, 
@@ -22,6 +23,7 @@ import {
 export default function SettingsScreen(): React.JSX.Element {
   const paperTheme = usePaperTheme();
   const { themeMode, setThemeMode } = useTheme();
+  const { primaryCurrency, setPrimaryCurrency } = useCurrency();
   const [notifications, setNotifications] = useState(true);
   const [biometricAuth, setBiometricAuth] = useState(false);
   const [autoBackup, setAutoBackup] = useState(true);
@@ -124,6 +126,31 @@ export default function SettingsScreen(): React.JSX.Element {
                   value: 'system',
                   label: 'System',
                   icon: Globe,
+                },
+              ]}
+              style={styles.segmentedButtons}
+            />
+          </View>
+
+          <View style={styles.currencySelector}>
+            <Text variant="bodyMedium" style={[styles.currencyLabel, { color: paperTheme.colors.onSurface }]}>
+              Primary Currency
+            </Text>
+            <SegmentedButtons
+              value={primaryCurrency}
+              onValueChange={setPrimaryCurrency}
+              buttons={[
+                {
+                  value: 'EUR',
+                  label: 'EUR',
+                },
+                {
+                  value: 'USD',
+                  label: 'USD',
+                },
+                {
+                  value: 'GBP',
+                  label: 'GBP',
                 },
               ]}
               style={styles.segmentedButtons}
@@ -351,5 +378,13 @@ const styles = StyleSheet.create({
   },
   segmentedButtons: {
     marginTop: 8,
+  },
+  currencySelector: {
+    marginBottom: 16,
+  },
+  currencyLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 12,
   },
 });
