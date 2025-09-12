@@ -11,7 +11,7 @@ export const useAccounts = () => {
 
   const accountsQuery = useQuery({
     queryKey: ['accounts', user?.uid],
-    queryFn: () => [],
+    queryFn: (): Account[] => [],
     enabled: !!user,
   });
 

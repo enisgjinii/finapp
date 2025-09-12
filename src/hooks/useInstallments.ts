@@ -11,7 +11,7 @@ export const useInstallments = () => {
 
   const installmentsQuery = useQuery({
     queryKey: ['installments', user?.uid],
-    queryFn: () => [],
+    queryFn: (): Installment[] => [],
     enabled: !!user,
   });
 

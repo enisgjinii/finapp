@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { Text, Card, SegmentedButtons, FAB, useTheme } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
 import { YearSummary } from '../../src/components/YearSummary';
 import { calculateBalance } from '../../src/utils/money';
 
-export default function DashboardScreen(): JSX.Element {
+export default function DashboardScreen(): React.JSX.Element {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const theme = useTheme();
   const { transactions } = useTransactions();
@@ -32,9 +33,9 @@ export default function DashboardScreen(): JSX.Element {
   const netIncome = totalIncome - totalExpenses;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        <Text variant="headlineMedium" style={styles.title}>
+        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
           Dashboard
         </Text>
 
@@ -50,15 +51,18 @@ export default function DashboardScreen(): JSX.Element {
           />
         )}
 
-        <Card style={styles.summaryCard}>
+        <Card style={[styles.summaryCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.summaryTitle}>
+            <Text variant="titleLarge" style={[styles.summaryTitle, { color: theme.colors.onSurface }]}>
               {selectedYear} Financial Summary
             </Text>
-            
+
             <View style={styles.summaryRow}>
-              <View style={styles.summaryItem}>
-                <Text variant="bodyMedium" style={styles.label}>
+              <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                   Income
                 </Text>
                 <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
@@ -66,8 +70,8 @@ export default function DashboardScreen(): JSX.Element {
                 </Text>
               </View>
 
-              <View style={styles.summaryItem}>
-                <Text variant="bodyMedium" style={styles.label}>
+              <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                   Expenses
                 </Text>
                 <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.error }]}>
@@ -75,8 +79,8 @@ export default function DashboardScreen(): JSX.Element {
                 </Text>
               </View>
 
-              <View style={styles.summaryItem}>
-                <Text variant="bodyMedium" style={styles.label}>
+              <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+                <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                   Net
                 </Text>
                 <Text variant="titleLarge" style={[styles.amount, { color: netIncome >= 0 ? theme.colors.primary : theme.colors.error }]}>
@@ -93,25 +97,31 @@ export default function DashboardScreen(): JSX.Element {
           currency="USD"
         />
 
-        <Card style={styles.accountsCard}>
+        <Card style={[styles.accountsCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.sectionTitle}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               Account Balances
             </Text>
-            
+
             {accounts.map(account => (
               <Card
                 key={account.id}
-                style={[styles.accountCard, { backgroundColor: account.color || '#E3F2FD' }]}
+                style={[styles.accountCard, {
+                  backgroundColor: account.color || theme.colors.surfaceVariant,
+                  borderColor: theme.colors.outlineVariant
+                }]}
                 onPress={() => router.push(`/accounts/${account.id}`)}
               >
                 <Card.Content>
                   <View style={styles.accountRow}>
                     <View style={styles.accountInfo}>
-                      <Text variant="titleMedium" style={styles.accountName}>
+                      <Text variant="titleMedium" style={[styles.accountName, { color: theme.colors.onSurface }]}>
                         {account.name}
                       </Text>
-                      <Text variant="bodySmall" style={styles.currency}>
+                      <Text variant="bodySmall" style={[styles.currency, { color: theme.colors.onSurfaceVariant }]}>
                         {account.currency}
                       </Text>
                     </View>
@@ -125,23 +135,26 @@ export default function DashboardScreen(): JSX.Element {
           </Card.Content>
         </Card>
 
-        <Card style={styles.recentCard}>
+        <Card style={[styles.recentCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.sectionTitle}>
+            <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
               Recent Transactions
             </Text>
-            
+
             {transactions.slice(0, 5).map(transaction => {
               const account = accounts.find(a => a.id === transaction.accountId);
               return (
                 <View
                   key={transaction.id}
-                  style={styles.transactionRow}
+                  style={[styles.transactionRow, { borderBottomColor: theme.colors.outlineVariant }]}
                   onTouchEnd={() => router.push(`/transactions/${transaction.id}`)}
                 >
                   <View style={styles.transactionInfo}>
-                    <Text variant="titleMedium">{transaction.description || 'No description'}</Text>
-                    <Text variant="bodySmall" style={styles.transactionMeta}>
+                    <Text variant="titleMedium" style={{ color: theme.colors.onSurface }}>{transaction.description || 'No description'}</Text>
+                    <Text variant="bodySmall" style={[styles.transactionMeta, { color: theme.colors.onSurfaceVariant }]}>
                       {transaction.date.toLocaleDateString()} • {account?.name || 'Unknown Account'}
                     </Text>
                   </View>
@@ -160,17 +173,16 @@ export default function DashboardScreen(): JSX.Element {
 
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => router.push('/transactions/add')}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   scrollView: {
     flex: 1,
@@ -181,7 +193,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   yearSelector: {
@@ -194,16 +205,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   summaryTitle: {
     textAlign: 'center',
     marginBottom: 24,
     fontSize: 18,
     fontWeight: '600',
-    color: '#374151',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -215,12 +223,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: '#f9fafb',
     borderRadius: 8,
   },
   label: {
     fontSize: 12,
-    color: '#6b7280',
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.05,
@@ -228,7 +234,6 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
   },
   accountsCard: {
     marginHorizontal: 20,
@@ -236,14 +241,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 16,
   },
   accountCard: {
@@ -251,9 +253,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#f9fafb',
     borderWidth: 1,
-    borderColor: '#f3f4f6',
   },
   accountRow: {
     flexDirection: 'row',
@@ -267,27 +267,22 @@ const styles = StyleSheet.create({
   accountName: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
     marginBottom: 2,
   },
   currency: {
     fontSize: 12,
-    color: '#6b7280',
   },
   balance: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
   },
   recentCard: {
     marginHorizontal: 20,
-    marginBottom: 100,
+    marginBottom: 120, // Increased to account for tab bar + FAB
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   transactionRow: {
     flexDirection: 'row',
@@ -296,14 +291,12 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
   },
   transactionInfo: {
     flex: 1,
   },
   transactionMeta: {
     fontSize: 12,
-    color: '#6b7280',
     marginTop: 2,
   },
   transactionAmount: {
@@ -314,8 +307,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 20,
     right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
+    bottom: 80, // Position above tab bar
     borderRadius: 12,
     width: 56,
     height: 56,

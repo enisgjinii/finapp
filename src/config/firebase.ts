@@ -26,6 +26,9 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
+// Note: Firebase Auth automatically handles persistence in React Native
+// No additional persistence configuration needed
+
 // Connect to emulators in development (optional)
 // if (__DEV__ && !auth._delegate._config?.emulator) {
 //   connectAuthEmulator(auth, 'http://localhost:9099');

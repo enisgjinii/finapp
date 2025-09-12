@@ -11,7 +11,7 @@ export const useSavings = () => {
 
   const savingsQuery = useQuery({
     queryKey: ['savings', user?.uid],
-    queryFn: () => [],
+    queryFn: (): SavingsGoal[] => [],
     enabled: !!user,
   });
 

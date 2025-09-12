@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Text, Card, List, Switch, Button, Divider, useTheme } from 'react-native-paper';
+import { Text, Card, List, Switch, Button, Divider, useTheme as usePaperTheme, SegmentedButtons } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from '../../src/providers/ThemeProvider';
 import { 
   Bell, 
   Moon, 
@@ -17,9 +19,9 @@ import {
   Lock
 } from 'lucide-react-native';
 
-export default function SettingsScreen(): JSX.Element {
-  const theme = useTheme();
-  const [darkMode, setDarkMode] = useState(false);
+export default function SettingsScreen(): React.JSX.Element {
+  const paperTheme = usePaperTheme();
+  const { themeMode, setThemeMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [biometricAuth, setBiometricAuth] = useState(false);
   const [autoBackup, setAutoBackup] = useState(true);
@@ -85,34 +87,52 @@ export default function SettingsScreen(): JSX.Element {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Settings
-      </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
+          Settings
+        </Text>
 
-      <Card style={styles.settingsCard}>
+      <Card style={[styles.settingsCard, {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.outline
+      }]}>
         <Card.Content>
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Appearance
           </Text>
 
-          <List.Item
-            title="Dark Mode"
-            description="Use dark theme throughout the app"
-            left={(props) => <List.Icon {...props} icon={darkMode ? Moon : Sun} />}
-            right={() => (
-              <Switch
-                value={darkMode}
-                onValueChange={setDarkMode}
-                color={theme.colors.primary}
-              />
-            )}
-            style={styles.listItem}
-          />
+          <View style={styles.themeSelector}>
+            <Text variant="bodyMedium" style={[styles.themeLabel, { color: paperTheme.colors.onSurface }]}>
+              Theme
+            </Text>
+            <SegmentedButtons
+              value={themeMode}
+              onValueChange={setThemeMode}
+              buttons={[
+                {
+                  value: 'light',
+                  label: 'Light',
+                  icon: Sun,
+                },
+                {
+                  value: 'dark',
+                  label: 'Dark',
+                  icon: Moon,
+                },
+                {
+                  value: 'system',
+                  label: 'System',
+                  icon: Globe,
+                },
+              ]}
+              style={styles.segmentedButtons}
+            />
+          </View>
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Notifications
           </Text>
 
@@ -132,7 +152,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Security
           </Text>
 
@@ -152,7 +172,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Data Management
           </Text>
 
@@ -197,7 +217,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Currency & Region
           </Text>
 
@@ -219,7 +239,7 @@ export default function SettingsScreen(): JSX.Element {
 
           <Divider style={styles.divider} />
 
-          <Text variant="titleLarge" style={styles.sectionTitle}>
+          <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
             Support & About
           </Text>
 
@@ -249,38 +269,40 @@ export default function SettingsScreen(): JSX.Element {
         </Card.Content>
       </Card>
 
-      <Card style={styles.infoCard}>
+      <Card style={[styles.infoCard, {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.outline
+      }]}>
         <Card.Content>
-          <Text variant="titleMedium" style={styles.infoTitle}>
+          <Text variant="titleMedium" style={[styles.infoTitle, { color: theme.colors.onSurface }]}>
             App Information
           </Text>
-          <Text variant="bodySmall" style={styles.infoText}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
             Version: 1.0.0
           </Text>
-          <Text variant="bodySmall" style={styles.infoText}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
             Build: 2024.1.0
           </Text>
-          <Text variant="bodySmall" style={styles.infoText}>
+          <Text variant="bodySmall" style={[styles.infoText, { color: theme.colors.onSurfaceVariant }]}>
             Platform: React Native + Expo
           </Text>
         </Card.Content>
       </Card>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   title: {
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 48,
     marginBottom: 24,
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   settingsCard: {
@@ -289,14 +311,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 16,
   },
   listItem: {
@@ -311,19 +330,26 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 8,
   },
   infoText: {
     fontSize: 14,
-    color: '#6b7280',
     marginBottom: 4,
+  },
+  themeSelector: {
+    marginBottom: 16,
+  },
+  themeLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 12,
+  },
+  segmentedButtons: {
+    marginTop: 8,
   },
 });

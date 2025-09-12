@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, Alert, ScrollView } from 'react-native';
-import { Text, TextInput, Button, Card } from 'react-native-paper';
+import { Text, TextInput, Button, Card, Checkbox } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Redirect } from 'expo-router';
 import { useAuth } from '../src/providers/AuthProvider';
 
-export default function AuthScreen(): JSX.Element {
+export default function AuthScreen(): React.JSX.Element {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
 
   // Redirect if user is already authenticated
@@ -95,9 +97,10 @@ export default function AuthScreen(): JSX.Element {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <Card style={styles.card}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.container}>
+          <Card style={styles.card}>
           <Card.Content>
             <Text variant="headlineMedium" style={styles.title}>
               Finance Tracker
@@ -155,6 +158,15 @@ export default function AuthScreen(): JSX.Element {
               />
             )}
 
+            <View style={styles.checkboxContainer}>
+              <Checkbox
+                status={rememberMe ? 'checked' : 'unchecked'}
+                onPress={() => setRememberMe(!rememberMe)}
+                color="#000000"
+              />
+              <Text style={styles.checkboxLabel}>Remember me</Text>
+            </View>
+
             <Button
               mode="contained"
               onPress={handleAuth}
@@ -183,19 +195,22 @@ export default function AuthScreen(): JSX.Element {
         </Card>
       </View>
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
   scrollContainer: {
     flexGrow: 1,
-    backgroundColor: '#ffffff',
   },
   container: {
     flex: 1,
     justifyContent: 'center',
     padding: 24,
-    backgroundColor: '#ffffff',
   },
   card: {
     borderRadius: 12,
@@ -279,5 +294,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  checkboxLabel: {
+    marginLeft: 8,
+    color: '#374151',
+    fontSize: 14,
   },
 });

@@ -10,13 +10,19 @@ import { SavingsGoal } from '../../src/types';
 
 const schema = yup.object().shape({
   title: yup.string().required('Title is required').min(2, 'Title must be at least 2 characters'),
-  targetAmount: yup.number().required('Target amount is required').positive('Amount must be positive'),
-  currentAmount: yup.number().min(0, 'Current amount cannot be negative').default(0),
+  targetAmount: yup.string().required('Target amount is required').test('is-number', 'Must be a valid positive number', (value) => {
+    const num = parseFloat(value || '0');
+    return !isNaN(num) && num > 0;
+  }),
+  currentAmount: yup.string().test('is-number', 'Must be a valid non-negative number', (value) => {
+    const num = parseFloat(value || '0');
+    return !isNaN(num) && num >= 0;
+  }),
   dueDate: yup.string().optional(),
   notes: yup.string(),
 });
 
-export default function AddSavingsScreen(): JSX.Element {
+export default function AddSavingsScreen(): React.JSX.Element {
   const { createSavingsGoal } = useSavings();
 
   const { control, handleSubmit, formState: { errors }, watch, setValue } = useForm({
@@ -86,7 +92,7 @@ export default function AddSavingsScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Target Amount"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"
@@ -105,7 +111,7 @@ export default function AddSavingsScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Current Amount Saved"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"

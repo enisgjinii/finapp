@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, ScrollView } from 'react-native';
 import { Text, Card, SegmentedButtons, useTheme } from 'react-native-paper';
-import { VictoryPie, VictoryChart, VictoryBar, VictoryAxis, VictoryTheme } from 'victory-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
 
-export default function ReportsScreen(): JSX.Element {
+export default function ReportsScreen(): React.JSX.Element {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
   const theme = useTheme();
   const { transactions } = useTransactions();
@@ -82,10 +82,11 @@ export default function ReportsScreen(): JSX.Element {
   const netIncome = totalIncome - totalExpenses;
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Reports & Analytics
-      </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
+          Reports & Analytics
+        </Text>
 
       <SegmentedButtons
         value={selectedPeriod}
@@ -98,15 +99,18 @@ export default function ReportsScreen(): JSX.Element {
         style={styles.periodSelector}
       />
 
-      <Card style={styles.summaryCard}>
+      <Card style={[styles.summaryCard, {
+        backgroundColor: theme.colors.surface,
+        borderColor: theme.colors.outline
+      }]}>
         <Card.Content>
-          <Text variant="titleLarge" style={styles.summaryTitle}>
+          <Text variant="titleLarge" style={[styles.summaryTitle, { color: theme.colors.onSurface }]}>
             {selectedPeriod.charAt(0).toUpperCase() + selectedPeriod.slice(1)} Summary
           </Text>
-          
+
           <View style={styles.summaryRow}>
-            <View style={styles.summaryItem}>
-              <Text variant="bodyMedium" style={styles.label}>
+            <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                 Income
               </Text>
               <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
@@ -114,8 +118,8 @@ export default function ReportsScreen(): JSX.Element {
               </Text>
             </View>
 
-            <View style={styles.summaryItem}>
-              <Text variant="bodyMedium" style={styles.label}>
+            <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                 Expenses
               </Text>
               <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.error }]}>
@@ -123,8 +127,8 @@ export default function ReportsScreen(): JSX.Element {
               </Text>
             </View>
 
-            <View style={styles.summaryItem}>
-              <Text variant="bodyMedium" style={styles.label}>
+            <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
+              <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
                 Net
               </Text>
               <Text variant="titleLarge" style={[styles.amount, { color: netIncome >= 0 ? theme.colors.primary : theme.colors.error }]}>
@@ -136,97 +140,74 @@ export default function ReportsScreen(): JSX.Element {
       </Card>
 
       {categoryData.length > 0 && (
-        <Card style={styles.chartCard}>
+        <Card style={[styles.chartCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.chartTitle}>
+            <Text variant="titleLarge" style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
               Spending by Category
             </Text>
-            <View style={styles.chartContainer}>
-              <VictoryPie
-                data={categoryData}
-                colorScale="qualitative"
-                width={300}
-                height={300}
-                innerRadius={50}
-                labelRadius={({ innerRadius }) => innerRadius + 35}
-                style={{
-                  labels: {
-                    fill: theme.colors.onSurface,
-                    fontSize: 12,
-                    fontWeight: 'bold',
-                  },
-                }}
-              />
+            <View style={[styles.chartContainer, { justifyContent: 'center', alignItems: 'center' }]}>
+              <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+                Chart visualization coming soon
+              </Text>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
+                Categories: {categoryData.map(cat => cat.x).join(', ')}
+              </Text>
             </View>
           </Card.Content>
         </Card>
       )}
 
       {accountData.length > 0 && (
-        <Card style={styles.chartCard}>
+        <Card style={[styles.chartCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleLarge" style={styles.chartTitle}>
+            <Text variant="titleLarge" style={[styles.chartTitle, { color: theme.colors.onSurface }]}>
               Spending by Account
             </Text>
-            <View style={styles.chartContainer}>
-              <VictoryChart
-                theme={VictoryTheme.material}
-                width={350}
-                height={250}
-                domainPadding={20}
-              >
-                <VictoryAxis
-                  tickFormat={(t) => t.length > 10 ? t.substring(0, 10) + '...' : t}
-                  style={{
-                    tickLabels: { fontSize: 10, angle: -45 },
-                  }}
-                />
-                <VictoryAxis
-                  dependentAxis
-                  tickFormat={(t) => `₺${t.toLocaleString()}`}
-                  style={{
-                    tickLabels: { fontSize: 10 },
-                  }}
-                />
-                <VictoryBar
-                  data={accountData}
-                  style={{
-                    data: {
-                      fill: theme.colors.primary,
-                    },
-                  }}
-                />
-              </VictoryChart>
+            <View style={[styles.chartContainer, { justifyContent: 'center', alignItems: 'center' }]}>
+              <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
+                Bar chart visualization coming soon
+              </Text>
+              <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
+                Accounts: {accountData.map(acc => acc.x).join(', ')}
+              </Text>
             </View>
           </Card.Content>
         </Card>
       )}
 
       {filteredTransactions.length === 0 && (
-        <Card style={styles.emptyCard}>
+        <Card style={[styles.emptyCard, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}>
           <Card.Content>
-            <Text variant="titleMedium" style={styles.emptyText}>
+            <Text variant="titleMedium" style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
               No transactions found for the selected period
             </Text>
           </Card.Content>
         </Card>
       )}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   title: {
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: 48,
     marginBottom: 24,
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   periodSelector: {
@@ -239,16 +220,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   summaryTitle: {
     textAlign: 'center',
     marginBottom: 24,
     fontSize: 18,
     fontWeight: '600',
-    color: '#374151',
   },
   summaryRow: {
     flexDirection: 'row',
@@ -260,12 +238,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 12,
-    backgroundColor: '#f9fafb',
     borderRadius: 8,
   },
   label: {
     fontSize: 12,
-    color: '#6b7280',
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.05,
@@ -273,7 +249,6 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
   },
   chartCard: {
     marginHorizontal: 20,
@@ -281,14 +256,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   chartTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#374151',
     marginBottom: 16,
     textAlign: 'center',
   },
@@ -302,13 +274,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
   },
   emptyText: {
     textAlign: 'center',
-    color: '#6b7280',
     fontStyle: 'italic',
   },
 });

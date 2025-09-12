@@ -20,7 +20,7 @@ export const useTransactions = (filters: TransactionFilters = {}) => {
 
   const transactionsQuery = useQuery({
     queryKey: ['transactions', user?.uid, filters],
-    queryFn: () => [],
+    queryFn: (): Transaction[] => [],
     enabled: !!user,
   });
 

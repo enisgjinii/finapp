@@ -6,7 +6,7 @@ import { useSavings } from '../../src/hooks/useSavings';
 import { formatCurrency } from '../../src/utils/money';
 import { formatDate } from '../../src/utils/date';
 
-export default function SavingsScreen(): JSX.Element {
+export default function SavingsScreen(): React.JSX.Element {
   const theme = useTheme();
   const { savings } = useSavings();
 
@@ -16,12 +16,14 @@ export default function SavingsScreen(): JSX.Element {
 
     return (
       <Card
-        style={styles.card}
-        onPress={() => router.push(`/savings/${item.id}`)}
+        style={[styles.card, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}
       >
         <Card.Content>
           <View style={styles.header}>
-            <Text variant="titleLarge" style={styles.title}>
+            <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }]}>
               {item.title}
             </Text>
             <Text variant="headlineSmall" style={[styles.percentage, { color: theme.colors.primary }]}>
@@ -30,14 +32,14 @@ export default function SavingsScreen(): JSX.Element {
           </View>
 
           <View style={styles.amounts}>
-            <Text variant="titleMedium" style={styles.currentAmount}>
+            <Text variant="titleMedium" style={[styles.currentAmount, { color: theme.colors.onSurface }]}>
               {formatCurrency(item.currentAmount)}
             </Text>
-            <Text variant="bodyMedium" style={styles.targetAmount}>
+            <Text variant="bodyMedium" style={[styles.targetAmount, { color: theme.colors.onSurfaceVariant }]}>
               of {formatCurrency(item.targetAmount)}
             </Text>
             {item.dueDate && (
-              <Text variant="bodySmall" style={styles.dueDate}>
+              <Text variant="bodySmall" style={[styles.dueDate, { color: theme.colors.onSurfaceVariant }]}>
                 Target: {formatDate(item.dueDate)}
               </Text>
             )}
@@ -50,7 +52,7 @@ export default function SavingsScreen(): JSX.Element {
           />
 
           {item.notes && (
-            <Text variant="bodySmall" style={styles.notes}>
+            <Text variant="bodySmall" style={[styles.notes, { color: theme.colors.onSurfaceVariant }]}>
               {item.notes}
             </Text>
           )}
@@ -60,8 +62,8 @@ export default function SavingsScreen(): JSX.Element {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.screenTitle}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Text variant="headlineMedium" style={[styles.screenTitle, { color: theme.colors.onBackground }]}>
         Savings Goals
       </Text>
 
@@ -76,7 +78,7 @@ export default function SavingsScreen(): JSX.Element {
 
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => router.push('/savings/add')}
       />
     </View>
@@ -86,7 +88,6 @@ export default function SavingsScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   screenTitle: {
     textAlign: 'center',
@@ -94,7 +95,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   list: {
@@ -102,16 +102,14 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased for tab bar + FAB
   },
   card: {
     marginBottom: 12,
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     padding: 20,
   },
   header: {
@@ -123,13 +121,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#111827',
     flex: 1,
   },
   percentage: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000000',
   },
   amounts: {
     marginBottom: 16,
@@ -137,35 +133,29 @@ const styles = StyleSheet.create({
   currentAmount: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#111827',
   },
   targetAmount: {
     fontSize: 14,
-    color: '#6b7280',
     marginTop: 2,
   },
   dueDate: {
     fontSize: 12,
-    color: '#6b7280',
     marginTop: 4,
   },
   progressBar: {
     height: 6,
     borderRadius: 3,
     marginBottom: 16,
-    backgroundColor: '#f3f4f6',
   },
   notes: {
     fontSize: 14,
-    color: '#6b7280',
     fontStyle: 'italic',
   },
   fab: {
     position: 'absolute',
     margin: 20,
     right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
+    bottom: 80, // Position above tab bar
     borderRadius: 12,
     width: 56,
     height: 56,

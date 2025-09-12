@@ -42,7 +42,7 @@ const icons = [
   { value: 'home', label: 'Home' },
 ];
 
-export default function AddAccountScreen(): JSX.Element {
+export default function AddAccountScreen(): React.JSX.Element {
   const { createAccount, accounts } = useAccounts();
 
   const { control, handleSubmit, formState: { errors }, setValue } = useForm({

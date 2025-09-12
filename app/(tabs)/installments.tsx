@@ -7,7 +7,7 @@ import { useAccounts } from '../../src/hooks/useAccounts';
 import { formatCurrency } from '../../src/utils/money';
 import { formatDate } from '../../src/utils/date';
 
-export default function InstallmentsScreen(): JSX.Element {
+export default function InstallmentsScreen(): React.JSX.Element {
   const theme = useTheme();
   const { installments, payInstallment } = useInstallments();
   const { accounts } = useAccounts();
@@ -26,24 +26,26 @@ export default function InstallmentsScreen(): JSX.Element {
 
     return (
       <Card
-        style={styles.card}
-        onPress={() => router.push(`/installments/${item.id}`)}
+        style={[styles.card, {
+          backgroundColor: theme.colors.surface,
+          borderColor: theme.colors.outline
+        }]}
       >
         <Card.Content>
           <View style={styles.header}>
-            <Text variant="titleLarge" style={styles.title}>
+            <Text variant="titleLarge" style={[styles.title, { color: theme.colors.onSurface }]}>
               {item.title}
             </Text>
-            <Text variant="bodyMedium" style={styles.account}>
+            <Text variant="bodyMedium" style={[styles.account, { color: theme.colors.onSurfaceVariant }]}>
               {account?.name}
             </Text>
           </View>
 
           <View style={styles.details}>
-            <Text variant="titleMedium" style={styles.amount}>
+            <Text variant="titleMedium" style={[styles.amount, { color: theme.colors.onSurface }]}>
               {formatCurrency(item.monthlyAmount)} / month
             </Text>
-            <Text variant="bodyMedium" style={styles.progress}>
+            <Text variant="bodyMedium" style={[styles.progress, { color: theme.colors.onSurfaceVariant }]}>
               {item.monthsPaid} of {item.monthsTotal} payments
             </Text>
           </View>
@@ -55,7 +57,7 @@ export default function InstallmentsScreen(): JSX.Element {
           />
 
           <View style={styles.footer}>
-            <Text variant="bodyMedium">
+            <Text variant="bodyMedium" style={{ color: theme.colors.onSurface }}>
               Next: {formatDate(item.nextDueDate)}
             </Text>
             <Button
@@ -73,8 +75,8 @@ export default function InstallmentsScreen(): JSX.Element {
   };
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.screenTitle}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+      <Text variant="headlineMedium" style={[styles.screenTitle, { color: theme.colors.onBackground }]}>
         Installments
       </Text>
 
@@ -89,7 +91,7 @@ export default function InstallmentsScreen(): JSX.Element {
 
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => router.push('/installments/add')}
       />
     </View>
@@ -99,7 +101,6 @@ export default function InstallmentsScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   screenTitle: {
     textAlign: 'center',
@@ -107,7 +108,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   list: {
@@ -115,16 +115,14 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased for tab bar + FAB
   },
   card: {
     marginBottom: 12,
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     padding: 20,
   },
   header: {
@@ -133,11 +131,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#111827',
   },
   account: {
     fontSize: 14,
-    color: '#6b7280',
     marginTop: 2,
   },
   details: {
@@ -146,16 +142,13 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#111827',
   },
   progress: {
     fontSize: 12,
-    color: '#6b7280',
     marginTop: 4,
   },
   progressBar: {
     height: 6,
-    backgroundColor: '#f3f4f6',
     borderRadius: 3,
     marginBottom: 16,
   },
@@ -168,8 +161,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     margin: 20,
     right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
+    bottom: 80, // Position above tab bar
     borderRadius: 12,
     width: 56,
     height: 56,

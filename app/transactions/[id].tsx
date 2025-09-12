@@ -7,7 +7,7 @@ import { useAccounts } from '../../src/hooks/useAccounts';
 import { formatCurrency } from '../../src/utils/money';
 import { formatDate } from '../../src/utils/date';
 
-export default function TransactionDetailsScreen(): JSX.Element {
+export default function TransactionDetailsScreen(): React.JSX.Element {
   const { id } = useLocalSearchParams();
   const theme = useTheme();
   const { transactions } = useTransactions();

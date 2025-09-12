@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, View, FlatList } from 'react-native';
 import { Text, Card, FAB, IconButton, useTheme } from 'react-native-paper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAccounts } from '../../src/hooks/useAccounts';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { AccountCard } from '../../src/components/AccountCard';
 import { calculateBalance } from '../../src/utils/money';
 
-export default function AccountsScreen(): JSX.Element {
+export default function AccountsScreen(): React.JSX.Element {
   const theme = useTheme();
   const { accounts } = useAccounts();
   const { transactions } = useTransactions();
@@ -22,8 +23,8 @@ export default function AccountsScreen(): JSX.Element {
   );
 
   return (
-    <View style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
+      <Text variant="headlineMedium" style={[styles.title, { color: theme.colors.onBackground }]}>
         Accounts
       </Text>
 
@@ -38,17 +39,16 @@ export default function AccountsScreen(): JSX.Element {
 
       <FAB
         icon="plus"
-        style={styles.fab}
+        style={[styles.fab, { backgroundColor: theme.colors.primary }]}
         onPress={() => router.push('/accounts/add')}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
   },
   title: {
     textAlign: 'center',
@@ -56,7 +56,6 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     fontSize: 32,
     fontWeight: '700',
-    color: '#111827',
     letterSpacing: -0.025,
   },
   list: {
@@ -64,14 +63,13 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 20,
-    paddingBottom: 100,
+    paddingBottom: 120, // Increased for tab bar + FAB
   },
   fab: {
     position: 'absolute',
     margin: 20,
     right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
+    bottom: 80, // Position above tab bar
     borderRadius: 12,
     width: 56,
     height: 56,

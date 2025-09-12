@@ -12,12 +12,15 @@ import { Transaction } from '../../src/types';
 
 const schema = yup.object().shape({
   description: yup.string().max(200, 'Description too long'),
-  amount: yup.number().required('Amount is required').test('not-zero', 'Amount cannot be zero', value => value !== 0),
+  amount: yup.string().required('Amount is required').test('not-zero', 'Amount cannot be zero', (value) => {
+    const num = parseFloat(value || '0');
+    return !isNaN(num) && num !== 0;
+  }),
   category: yup.string(),
   accountId: yup.string().required('Account is required'),
 });
 
-export default function AddTransactionScreen(): JSX.Element {
+export default function AddTransactionScreen(): React.JSX.Element {
   const [transactionType, setTransactionType] = useState('expense');
   const { createTransaction } = useTransactions();
   const { accounts } = useAccounts();
@@ -96,7 +99,7 @@ export default function AddTransactionScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Amount"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"

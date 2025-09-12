@@ -10,14 +10,23 @@ import { useAccounts } from '../../src/hooks/useAccounts';
 
 const schema = yup.object().shape({
   title: yup.string().required('Title is required').min(2, 'Title must be at least 2 characters'),
-  principal: yup.number().required('Principal amount is required').positive('Principal must be positive'),
-  monthlyAmount: yup.number().required('Monthly amount is required').positive('Monthly amount must be positive'),
-  monthsTotal: yup.number().required('Total months is required').integer('Must be a whole number').min(1, 'Must be at least 1 month'),
+  principal: yup.string().required('Principal amount is required').test('is-number', 'Must be a valid positive number', (value) => {
+    const num = parseFloat(value || '0');
+    return !isNaN(num) && num > 0;
+  }),
+  monthlyAmount: yup.string().required('Monthly amount is required').test('is-number', 'Must be a valid positive number', (value) => {
+    const num = parseFloat(value || '0');
+    return !isNaN(num) && num > 0;
+  }),
+  monthsTotal: yup.string().required('Total months is required').test('is-integer', 'Must be a whole number', (value) => {
+    const num = parseInt(value || '0');
+    return !isNaN(num) && num >= 1 && num === parseFloat(value || '0');
+  }),
   accountId: yup.string().required('Account is required'),
   nextDueDate: yup.string().required('Next due date is required'),
 });
 
-export default function AddInstallmentScreen(): JSX.Element {
+export default function AddInstallmentScreen(): React.JSX.Element {
   const { createInstallment } = useInstallments();
   const { accounts } = useAccounts();
 
@@ -127,7 +136,7 @@ export default function AddInstallmentScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Principal Amount"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"
@@ -146,7 +155,7 @@ export default function AddInstallmentScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Monthly Payment"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"
@@ -165,7 +174,7 @@ export default function AddInstallmentScreen(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <TextInput
                 label="Total Months"
-                value={value}
+                value={value || ''}
                 onChangeText={onChange}
                 mode="outlined"
                 keyboardType="numeric"
