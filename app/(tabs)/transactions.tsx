@@ -215,11 +215,38 @@ export default function TransactionsScreen(): React.JSX.Element {
   const filterAnimation = useRef(new Animated.Value(0)).current;
   const headerAnimation = useRef(new Animated.Value(1)).current;
 
-  // Calculate total balance with memoization
-  const totalBalance = useMemo(() =>
-    accounts.reduce((sum, account) => sum + (account.balanceComputed || 0), 0),
-    [accounts]
-  );
+  // Calculate balances based on sheetName (same as accounts screen)
+  const sheetAccounts = useMemo(() => {
+    const sheetMap = new Map<string, {
+      name: string;
+      balance: number;
+      transactionCount: number;
+    }>();
+
+    allTransactions.forEach(tx => {
+      const sheetName = (tx as any).sheetName;
+      if (!sheetName) return;
+
+      if (!sheetMap.has(sheetName)) {
+        sheetMap.set(sheetName, {
+          name: sheetName,
+          balance: 0,
+          transactionCount: 0,
+        });
+      }
+
+      const sheet = sheetMap.get(sheetName)!;
+      sheet.balance += tx.amount;
+      sheet.transactionCount += 1;
+    });
+
+    return Array.from(sheetMap.values());
+  }, [allTransactions]);
+
+  // Calculate total balance (same as accounts screen)
+  const totalBalance = useMemo(() => {
+    return sheetAccounts.reduce((sum, sheet) => sum + sheet.balance, 0);
+  }, [sheetAccounts]);
 
   // Enhanced filtering and sorting with performance optimization
   const filteredTransactions = useMemo(() => {
