@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Text, TextInput, Button, SegmentedButtons, Card } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TextInput, Button, SegmentedButtons, Surface } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -11,6 +12,7 @@ import { useAccounts } from '../../src/hooks/useAccounts';
 import { Transaction } from '../../src/types';
 import { AttachmentSection } from '../../src/components/AttachmentSection';
 import { AttachmentUpload } from '../../src/services/storage';
+import { ArrowLeft, Menu } from 'lucide-react-native';
 
 const schema = yup.object().shape({
   description: yup.string().max(200, 'Description too long'),
@@ -63,80 +65,128 @@ export default function AddTransactionScreen(): React.JSX.Element {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        Add Transaction
-      </Text>
+    <SafeAreaView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity 
+              onPress={() => router.back()}
+              style={styles.backButton}
+              activeOpacity={0.7}
+            >
+              <ArrowLeft size={20} color="#000000" />
+            </TouchableOpacity>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
+              Add Transaction
+            </Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={styles.menuButton}
+              activeOpacity={0.7}
+            >
+              <Menu size={20} color="#6b7280" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <SegmentedButtons
-            value={transactionType}
-            onValueChange={setTransactionType}
-            buttons={[
-              { value: 'income', label: 'Income' },
-              { value: 'expense', label: 'Expense' },
-            ]}
-            style={styles.typeSelector}
-          />
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Transaction Type */}
+        <Surface style={styles.card}>
+          <View style={styles.cardContent}>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Transaction Type
+            </Text>
+            <SegmentedButtons
+              value={transactionType}
+              onValueChange={setTransactionType}
+              buttons={[
+                { value: 'income', label: 'Income' },
+                { value: 'expense', label: 'Expense' },
+              ]}
+              style={styles.typeSelector}
+            />
+          </View>
+        </Surface>
 
-          <Controller
-            control={control}
-            name="description"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Description"
-                value={value}
-                onChangeText={onChange}
-                mode="outlined"
-                style={styles.input}
-                error={!!errors.description}
-              />
+        {/* Transaction Details */}
+        <Surface style={styles.card}>
+          <View style={styles.cardContent}>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Transaction Details
+            </Text>
+
+            <Controller
+              control={control}
+              name="description"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label="Description"
+                  value={value}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  style={styles.input}
+                  error={!!errors.description}
+                  outlineStyle={styles.inputOutline}
+                />
+              )}
+            />
+            {errors.description && (
+              <Text style={styles.errorText}>{errors.description.message}</Text>
             )}
-          />
-          {errors.description && (
-            <Text style={styles.errorText}>{errors.description.message}</Text>
-          )}
 
-          <Controller
-            control={control}
-            name="amount"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Amount"
-                value={value || ''}
-                onChangeText={onChange}
-                mode="outlined"
-                keyboardType="numeric"
-                style={styles.input}
-                error={!!errors.amount}
-              />
+            <Controller
+              control={control}
+              name="amount"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label="Amount"
+                  value={value || ''}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  keyboardType="numeric"
+                  style={styles.input}
+                  error={!!errors.amount}
+                  outlineStyle={styles.inputOutline}
+                />
+              )}
+            />
+            {errors.amount && (
+              <Text style={styles.errorText}>{errors.amount.message}</Text>
             )}
-          />
-          {errors.amount && (
-            <Text style={styles.errorText}>{errors.amount.message}</Text>
-          )}
 
-          <Controller
-            control={control}
-            name="category"
-            render={({ field: { onChange, value } }) => (
-              <TextInput
-                label="Category (optional)"
-                value={value}
-                onChangeText={onChange}
-                mode="outlined"
-                style={styles.input}
-              />
-            )}
-          />
+            <Controller
+              control={control}
+              name="category"
+              render={({ field: { onChange, value } }) => (
+                <TextInput
+                  label="Category (optional)"
+                  value={value}
+                  onChangeText={onChange}
+                  mode="outlined"
+                  style={styles.input}
+                  outlineStyle={styles.inputOutline}
+                />
+              )}
+            />
+          </View>
+        </Surface>
 
-          <Controller
-            control={control}
-            name="accountId"
-            render={({ field: { onChange, value } }) => (
-              <View style={styles.accountContainer}>
-                <Text variant="bodyMedium" style={styles.label}>Account</Text>
+        {/* Account Selection */}
+        <Surface style={styles.card}>
+          <View style={styles.cardContent}>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Account
+            </Text>
+            <Controller
+              control={control}
+              name="accountId"
+              render={({ field: { onChange, value } }) => (
                 <SegmentedButtons
                   value={value}
                   onValueChange={onChange}
@@ -146,67 +196,155 @@ export default function AddTransactionScreen(): React.JSX.Element {
                   }))}
                   style={styles.segmentedButtons}
                 />
-              </View>
-            )}
-          />
-        </Card.Content>
-      </Card>
+              )}
+            />
+          </View>
+        </Surface>
 
-      <AttachmentSection
-        attachments={attachments}
-        onAttachmentsChange={setAttachments}
-        disabled={createTransaction.isPending}
-      />
+        {/* Attachments */}
+        <Surface style={styles.card}>
+          <View style={styles.cardContent}>
+            <Text variant="titleMedium" style={styles.sectionTitle}>
+              Attachments
+            </Text>
+            <AttachmentSection
+              attachments={attachments}
+              onAttachmentsChange={setAttachments}
+              disabled={createTransaction.isPending}
+            />
+          </View>
+        </Surface>
 
-      <Button
-        mode="contained"
-        onPress={handleSubmit(onSubmit)}
-        loading={createTransaction.isPending}
-        disabled={createTransaction.isPending}
-        style={styles.submitButton}
-      >
-        Add Transaction
-      </Button>
-    </ScrollView>
+        {/* Submit Button */}
+        <Button
+          mode="contained"
+          onPress={handleSubmit(onSubmit)}
+          loading={createTransaction.isPending}
+          disabled={createTransaction.isPending}
+          style={styles.submitButton}
+          contentStyle={styles.submitButtonContent}
+        >
+          Add Transaction
+        </Button>
+
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  // Header Styles
+  header: {
+    backgroundColor: '#ffffff',
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  backButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  menuButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    letterSpacing: -0.3,
+    marginBottom: 0,
+    color: '#000000',
+  },
+  // Content Styles
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  // Card Styles
+  card: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  cardContent: {
     padding: 16,
   },
-  title: {
-    textAlign: 'center',
-    marginBottom: 24,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: '600',
+    marginBottom: 16,
+    color: '#000000',
   },
-  card: {
-    elevation: 2,
-  },
-  typeSelector: {
-    marginBottom: 24,
-  },
+  // Input Styles
   input: {
     marginBottom: 16,
+    backgroundColor: '#ffffff',
   },
-  accountContainer: {
-    marginBottom: 24,
+  inputOutline: {
+    borderColor: '#e5e7eb',
+    borderWidth: 1,
   },
-  label: {
-    marginBottom: 8,
-    fontWeight: '500',
+  // Segmented Buttons
+  typeSelector: {
+    marginBottom: 0,
   },
   segmentedButtons: {
-    marginBottom: 8,
+    marginBottom: 0,
   },
+  // Error Text
   errorText: {
-    color: '#B00020',
+    color: '#dc2626',
     fontSize: 12,
     marginBottom: 8,
     marginTop: -8,
   },
+  // Submit Button
   submitButton: {
-    marginTop: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    backgroundColor: '#000000',
+  },
+  submitButtonContent: {
+    paddingVertical: 8,
+  },
+  // Bottom Spacer
+  bottomSpacer: {
+    height: 16,
   },
 });

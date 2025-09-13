@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, ScrollView, View, TouchableOpacity, Dimensions } from 'react-native';
-import { Text, Card, SegmentedButtons, useTheme as usePaperTheme, Chip, IconButton } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useMemo } from 'react';
+import { StyleSheet, ScrollView, View, TouchableOpacity, Dimensions, Platform } from 'react-native';
+import { Text, Surface, Chip } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
@@ -10,291 +9,219 @@ import { useCurrency } from '../../src/providers/CurrencyProvider';
 import { calculateBalance } from '../../src/utils/money';
 import { 
   TrendingUp, 
-  TrendingDown, 
   Wallet, 
   Plus, 
   ArrowUpRight, 
   ArrowDownLeft,
   CreditCard,
   Target,
-  Calendar,
-  MoreHorizontal
+  MoreHorizontal,
+  Building2
 } from 'lucide-react-native';
 
 const { width } = Dimensions.get('window');
 
 export default function DashboardScreen(): React.JSX.Element {
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const theme = usePaperTheme();
   const { user } = useAuth();
   const { formatCurrency, primaryCurrency } = useCurrency();
   const { transactions } = useTransactions();
   const { accounts } = useAccounts();
 
-  const years = Array.from(
-    new Set(transactions
-      .filter(tx => tx.date)
-      .map(tx => (tx.date instanceof Date ? tx.date : new Date(tx.date)).getFullYear()))
-  ).sort((a, b) => b - a);
+  // Get all unique sheetName values from transactions (same logic as accounts screen)
+  const sheetAccounts = useMemo(() => {
+    const sheetMap = new Map<string, {
+      name: string;
+      balance: number;
+      transactionCount: number;
+    }>();
 
-  const currentYearTransactions = transactions.filter(
-    tx => tx.date && (tx.date instanceof Date ? tx.date : new Date(tx.date)).getFullYear() === selectedYear
-  );
+    transactions.forEach(tx => {
+      const sheetName = (tx as any).sheetName;
+      if (!sheetName) return;
 
-  const totalIncome = currentYearTransactions
-    .filter(tx => tx.amount > 0)
-    .reduce((sum, tx) => sum + tx.amount, 0);
+      // Skip excluded accounts
+      if (sheetName === 'TEB Starkertela' || sheetName === 'TEB STARKARTELA' || sheetName === 'Test Sheet 1') return;
 
-  const totalExpenses = Math.abs(currentYearTransactions
-    .filter(tx => tx.amount < 0)
-    .reduce((sum, tx) => sum + tx.amount, 0));
+      if (!sheetMap.has(sheetName)) {
+        sheetMap.set(sheetName, {
+          name: sheetName,
+          balance: 0,
+          transactionCount: 0,
+        });
+      }
 
-  const netIncome = totalIncome - totalExpenses;
+      const sheet = sheetMap.get(sheetName)!;
+      sheet.balance += tx.amount;
+      sheet.transactionCount += 1;
+    });
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good Morning';
-    if (hour < 18) return 'Good Afternoon';
-    return 'Good Evening';
-  };
+    return Array.from(sheetMap.values()).filter(sheet => sheet.transactionCount > 0);
+  }, [transactions]);
 
-  const totalBalance = accounts.reduce((sum, account) => {
-    return sum + calculateBalance(transactions, account.id);
-  }, 0);
+  const totalBalance = sheetAccounts.reduce((sum, sheet) => sum + sheet.balance, 0);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]} edges={['top']}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        {/* Compact Header Section */}
-        <View style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={styles.headerLeft}>
-              <Text variant="titleMedium" style={[styles.greeting, { color: theme.colors.onBackground }]}>
-                {getGreeting()}
-              </Text>
-              <Text variant="headlineSmall" style={[styles.userName, { color: theme.colors.onBackground }]}>
-                {user?.displayName || 'User'}
-              </Text>
-            </View>
-            <View style={styles.headerRight}>
-              <Text variant="bodySmall" style={[styles.dateText, { color: theme.colors.onSurfaceVariant }]}>
-                {new Date().toLocaleDateString('en-US', { 
-                  month: 'short', 
-                  day: 'numeric' 
-                })}
-              </Text>
-              <IconButton
-                icon="bell-outline"
-                size={20}
-                iconColor={theme.colors.onBackground}
-                onPress={() => {}}
-                style={styles.notificationButton}
-              />
-            </View>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
+              Dashboard
+            </Text>
           </View>
         </View>
+      </View>
 
-        {/* Compact Total Balance Card */}
-        <Card style={[styles.balanceCard, { 
-          backgroundColor: theme.colors.primary,
-          borderColor: theme.colors.primary
-        }]}>
-          <Card.Content style={styles.balanceContent}>
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+
+        {/* Total Balance Card */}
+        <Surface style={styles.balanceCard}>
+          <View style={styles.balanceContent}>
             <View style={styles.balanceHeader}>
-              <Text variant="bodySmall" style={[styles.balanceLabel, { color: theme.colors.onPrimary }]}>
+              <Text variant="bodySmall" style={styles.balanceLabel}>
                 Total Balance
               </Text>
               <Chip 
                 mode="outlined" 
-                textStyle={{ color: theme.colors.onPrimary, fontSize: 12 }}
-                style={[styles.currencyChip, { borderColor: theme.colors.onPrimary }]}
+                textStyle={{ color: '#000000', fontSize: 12 }}
+                style={styles.currencyChip}
                 compact
               >
                 {primaryCurrency}
               </Chip>
             </View>
-            <Text variant="headlineLarge" style={[styles.totalBalance, { color: theme.colors.onPrimary }]}>
+            <Text variant="headlineLarge" style={styles.totalBalance}>
               {formatCurrency(totalBalance)}
             </Text>
             <View style={styles.balanceChange}>
-              <TrendingUp size={12} color={theme.colors.onPrimary} />
-              <Text variant="bodySmall" style={[styles.changeText, { color: theme.colors.onPrimary }]}>
+              <TrendingUp size={12} color="#000000" />
+              <Text variant="bodySmall" style={styles.changeText}>
                 +12.5% from last month
               </Text>
             </View>
-          </Card.Content>
-        </Card>
+          </View>
+        </Surface>
 
-        {/* Compact Quick Actions */}
+        {/* Quick Actions */}
         <View style={styles.quickActions}>
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: theme.colors.surface }]}
+            style={styles.actionButton}
             onPress={() => router.push('/transactions/add')}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Plus size={14} color={theme.colors.primary} />
+            <View style={styles.actionIcon}>
+              <Plus size={14} color="#000000" />
             </View>
-            <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
+            <Text variant="bodySmall" style={styles.actionText}>
               Add
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: theme.colors.surface }]}
+            style={styles.actionButton}
             onPress={() => router.push('/accounts/add')}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: theme.colors.secondaryContainer }]}>
-              <CreditCard size={14} color={theme.colors.secondary} />
+            <View style={styles.actionIcon}>
+              <CreditCard size={14} color="#000000" />
             </View>
-            <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
+            <Text variant="bodySmall" style={styles.actionText}>
               Account
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: theme.colors.surface }]}
+            style={styles.actionButton}
             onPress={() => router.push('/savings/add')}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: theme.colors.tertiaryContainer }]}>
-              <Target size={14} color={theme.colors.tertiary} />
+            <View style={styles.actionIcon}>
+              <Target size={14} color="#000000" />
             </View>
-            <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
+            <Text variant="bodySmall" style={styles.actionText}>
               Savings
             </Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
-            style={[styles.actionButton, { backgroundColor: theme.colors.surface }]}
+            style={styles.actionButton}
             onPress={() => router.push('/reports')}
+            activeOpacity={0.7}
           >
-            <View style={[styles.actionIcon, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <TrendingUp size={14} color={theme.colors.onSurfaceVariant} />
+            <View style={styles.actionIcon}>
+              <TrendingUp size={14} color="#000000" />
             </View>
-            <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
+            <Text variant="bodySmall" style={styles.actionText}>
               Reports
             </Text>
           </TouchableOpacity>
         </View>
 
-        {/* Compact Financial Overview */}
-        <Card style={[styles.overviewCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content style={styles.overviewContent}>
-            <View style={styles.overviewHeader}>
-              <Text variant="titleMedium" style={[styles.overviewTitle, { color: theme.colors.onSurface }]}>
-                Overview
-              </Text>
-              {years.length > 0 && (
-                <SegmentedButtons
-                  value={selectedYear.toString()}
-                  onValueChange={(value) => setSelectedYear(parseInt(value))}
-                  buttons={years.slice(0, 3).map(year => ({
-                    value: year.toString(),
-                    label: year.toString(),
-                  }))}
-                  style={styles.yearSelector}
-                />
-              )}
-            </View>
 
-            <View style={styles.overviewGrid}>
-              <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                <View style={styles.overviewItemHeader}>
-                  <ArrowUpRight size={14} color={theme.colors.primary} />
-                  <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    Income
-                  </Text>
-                </View>
-                <Text variant="titleLarge" style={[styles.overviewAmount, { color: theme.colors.primary }]}>
-                  {formatCurrency(totalIncome)}
-                </Text>
-              </View>
-
-              <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                <View style={styles.overviewItemHeader}>
-                  <ArrowDownLeft size={14} color={theme.colors.error} />
-                  <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    Expenses
-                  </Text>
-                </View>
-                <Text variant="titleLarge" style={[styles.overviewAmount, { color: theme.colors.error }]}>
-                  {formatCurrency(totalExpenses)}
-                </Text>
-              </View>
-
-              <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                <View style={styles.overviewItemHeader}>
-                  <TrendingUp size={14} color={netIncome >= 0 ? theme.colors.primary : theme.colors.error} />
-                  <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
-                    Net
-                  </Text>
-                </View>
-                <Text variant="titleLarge" style={[styles.overviewAmount, { color: netIncome >= 0 ? theme.colors.primary : theme.colors.error }]}>
-                  {formatCurrency(netIncome)}
-                </Text>
-              </View>
-            </View>
-          </Card.Content>
-        </Card>
-
-        {/* Compact Accounts Section */}
+        {/* Accounts Section */}
         <View style={styles.sectionHeader}>
-          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
             Accounts
           </Text>
-          <TouchableOpacity onPress={() => router.push('/accounts')}>
-            <Text variant="bodySmall" style={[styles.seeAllText, { color: theme.colors.primary }]}>
+          <TouchableOpacity onPress={() => router.push('/accounts')} activeOpacity={0.7}>
+            <Text variant="bodySmall" style={styles.seeAllText}>
               See All
             </Text>
           </TouchableOpacity>
         </View>
 
-        {accounts.slice(0, 2).map(account => {
-          const balance = calculateBalance(transactions, account.id);
+        {sheetAccounts.slice(0, 2).map(sheet => {
+          const getAccountIcon = () => {
+            if (sheet.name.toLowerCase().includes('savings')) return <Target size={14} color="#6b7280" />;
+            if (sheet.name.toLowerCase().includes('credit')) return <CreditCard size={14} color="#6b7280" />;
+            return <Wallet size={14} color="#6b7280" />;
+          };
+
           return (
-            <Card 
-              key={account.id}
-              style={[styles.accountCard, { backgroundColor: theme.colors.surface }]}
-              onPress={() => router.push(`/accounts/${account.id}`)}
+            <TouchableOpacity 
+              key={sheet.name}
+              style={styles.accountCard}
+              onPress={() => router.push({
+                pathname: '/transactions',
+                params: { filterAccount: sheet.name }
+              })}
+              activeOpacity={0.7}
             >
-              <Card.Content style={styles.accountContent}>
+              <View style={styles.accountContent}>
                 <View style={styles.accountInfo}>
-                  <View style={[styles.accountIcon, { backgroundColor: account.color || theme.colors.primaryContainer }]}>
-                    <Wallet size={14} color={account.color || theme.colors.primary} />
+                  <View style={styles.accountIcon}>
+                    {getAccountIcon()}
                   </View>
                   <View style={styles.accountDetails}>
-                    <Text variant="bodyLarge" style={[styles.accountName, { color: theme.colors.onSurface }]}>
-                      {account.name}
-                    </Text>
-                    <Text variant="bodySmall" style={[styles.accountCurrency, { color: theme.colors.onSurfaceVariant }]}>
-                      {account.currency}
+                    <Text variant="bodyLarge" style={styles.accountName}>
+                      {sheet.name}
                     </Text>
                   </View>
                 </View>
-                <View style={styles.accountBalance}>
-                  <Text variant="titleMedium" style={[styles.balanceAmount, { color: balance >= 0 ? theme.colors.primary : theme.colors.error }]}>
-                    {formatCurrency(balance, account.currency as any)}
-                  </Text>
-                  <MoreHorizontal size={12} color={theme.colors.onSurfaceVariant} />
-                </View>
-              </Card.Content>
-            </Card>
+                <MoreHorizontal size={12} color="#6b7280" />
+              </View>
+            </TouchableOpacity>
           );
         })}
 
-        {/* Compact Recent Transactions */}
+        {/* Recent Transactions */}
         <View style={styles.sectionHeader}>
-          <Text variant="titleMedium" style={[styles.sectionTitle, { color: theme.colors.onBackground }]}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
             Recent
           </Text>
-          <TouchableOpacity onPress={() => router.push('/transactions')}>
-            <Text variant="bodySmall" style={[styles.seeAllText, { color: theme.colors.primary }]}>
+          <TouchableOpacity onPress={() => router.push('/transactions')} activeOpacity={0.7}>
+            <Text variant="bodySmall" style={styles.seeAllText}>
               See All
             </Text>
           </TouchableOpacity>
         </View>
 
-        <Card style={[styles.transactionsCard, { backgroundColor: theme.colors.surface }]}>
-          <Card.Content style={styles.transactionsContent}>
+        <Surface style={styles.transactionsCard}>
+          <View style={styles.transactionsContent}>
             {transactions.slice(0, 3).map((transaction, index) => {
               const account = accounts.find(a => a.id === transaction.accountId);
               const isLast = index === transactions.slice(0, 3).length - 1;
@@ -302,108 +229,89 @@ export default function DashboardScreen(): React.JSX.Element {
               return (
                 <TouchableOpacity
                   key={transaction.id}
-                  style={[styles.transactionItem, !isLast && { borderBottomColor: theme.colors.outlineVariant }]}
+                  style={[styles.transactionItem, !isLast && styles.transactionItemBorder]}
                   onPress={() => router.push(`/transactions/${transaction.id}`)}
+                  activeOpacity={0.7}
                 >
                   <View style={styles.transactionLeft}>
-                    <View style={[
-                      styles.transactionIcon, 
-                      { backgroundColor: transaction.amount >= 0 ? theme.colors.primaryContainer : theme.colors.errorContainer }
-                    ]}>
+                    <View style={styles.transactionIcon}>
                       {transaction.amount >= 0 ? (
-                        <ArrowUpRight size={12} color={theme.colors.primary} />
+                        <ArrowUpRight size={12} color="#000000" />
                       ) : (
-                        <ArrowDownLeft size={12} color={theme.colors.error} />
+                        <ArrowDownLeft size={12} color="#dc2626" />
                       )}
                     </View>
                     <View style={styles.transactionDetails}>
-                      <Text variant="bodyMedium" style={[styles.transactionDescription, { color: theme.colors.onSurface }]}>
+                      <Text variant="bodyMedium" style={styles.transactionDescription}>
                         {transaction.description || 'No description'}
                       </Text>
-                      <Text variant="bodySmall" style={[styles.transactionMeta, { color: theme.colors.onSurfaceVariant }]}>
+                      <Text variant="bodySmall" style={styles.transactionMeta}>
                         {transaction.date ? (transaction.date instanceof Date ? transaction.date : new Date(transaction.date)).toLocaleDateString() : 'Invalid Date'} • {account?.name || 'Unknown Account'}
                       </Text>
                     </View>
                   </View>
                   <Text variant="bodyLarge" style={[
                     styles.transactionAmount,
-                    { color: transaction.amount >= 0 ? theme.colors.primary : theme.colors.error }
+                    { color: transaction.amount >= 0 ? '#000000' : '#dc2626' }
                   ]}>
                     {transaction.amount >= 0 ? '' : '-'}{formatCurrency(Math.abs(transaction.amount), account?.currency as any)}
                   </Text>
                 </TouchableOpacity>
               );
             })}
-          </Card.Content>
-        </Card>
+          </View>
+        </Surface>
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
-
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
-  scrollView: {
-    flex: 1,
-  },
-  
-  // Compact Header Styles
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 20 : 15,
     paddingBottom: 12,
+    paddingHorizontal: 16,
   },
-  headerTop: {
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   headerLeft: {
     flex: 1,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  greeting: {
-    fontSize: 12,
-    fontWeight: '400',
-    opacity: 0.8,
-    marginBottom: 1,
-  },
-  userName: {
-    fontSize: 18,
+  screenTitle: {
+    fontSize: 24,
     fontWeight: '700',
     letterSpacing: -0.3,
+    marginBottom: 0,
+    color: '#000000',
   },
-  dateText: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  notificationButton: {
-    margin: 0,
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
 
-  // Compact Balance Card Styles
+  // Balance Card Styles
   balanceCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
   },
   balanceContent: {
-    paddingVertical: 14,
-    paddingHorizontal: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   balanceHeader: {
     flexDirection: 'row',
@@ -415,15 +323,18 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '500',
     opacity: 0.9,
+    color: '#6b7280',
   },
   currencyChip: {
     height: 20,
+    borderColor: '#e5e7eb',
   },
   totalBalance: {
     fontSize: 24,
     fontWeight: '700',
     letterSpacing: -0.6,
     marginBottom: 4,
+    color: '#000000',
   },
   balanceChange: {
     flexDirection: 'row',
@@ -434,12 +345,12 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '500',
     opacity: 0.9,
+    color: '#6b7280',
   },
 
-  // Compact Quick Actions Styles
+  // Quick Actions Styles
   quickActions: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
     marginBottom: 12,
     gap: 6,
   },
@@ -449,11 +360,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 6,
     borderRadius: 10,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    elevation: 0,
+    shadowOpacity: 0,
   },
   actionIcon: {
     width: 28,
@@ -462,193 +373,130 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
+    backgroundColor: '#f9fafb',
   },
   actionText: {
     fontSize: 10,
     fontWeight: '500',
     textAlign: 'center',
+    color: '#000000',
   },
 
-  // Compact Overview Styles
-  overviewCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
-    borderRadius: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-  },
-  overviewContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-  },
-  overviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  overviewTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  yearSelector: {
-    flex: 0.5,
-  },
-  overviewGrid: {
-    flexDirection: 'row',
-    gap: 6,
-  },
-  overviewItem: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 10,
-    alignItems: 'flex-start',
-  },
-  overviewItemHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    marginBottom: 6,
-  },
-  overviewLabel: {
-    fontSize: 9,
-    fontWeight: '500',
-    textTransform: 'uppercase',
-    letterSpacing: 0.2,
-  },
-  overviewAmount: {
-    fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: -0.2,
-  },
 
-  // Compact Section Headers
+  // Section Headers
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
     marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 18,
     fontWeight: '600',
+    color: '#000000',
   },
   seeAllText: {
-    fontSize: 11,
+    fontSize: 13,
     fontWeight: '500',
+    color: '#6b7280',
   },
 
-  // Compact Account Cards
+  // Account Cards
   accountCard: {
-    marginHorizontal: 16,
-    marginBottom: 6,
-    borderRadius: 10,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 8,
   },
   accountContent: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
   },
   accountInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
   },
   accountIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#f9fafb',
   },
   accountDetails: {
     flex: 1,
   },
   accountName: {
-    fontSize: 13,
-    fontWeight: '600',
-    marginBottom: 1,
-  },
-  accountCurrency: {
-    fontSize: 10,
-    fontWeight: '500',
-    opacity: 0.7,
-  },
-  accountBalance: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  balanceAmount: {
     fontSize: 14,
-    fontWeight: '700',
-    letterSpacing: -0.2,
+    fontWeight: '500',
+    marginBottom: 2,
+    color: '#000000',
   },
 
-  // Compact Transactions
+  // Transactions
   transactionsCard: {
-    marginHorizontal: 16,
-    marginBottom: 12,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
   },
   transactionsContent: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 10,
+    paddingVertical: 12,
+  },
+  transactionItemBorder: {
     borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
   transactionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 8,
+    gap: 12,
   },
   transactionIcon: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#f9fafb',
   },
   transactionDetails: {
     flex: 1,
   },
   transactionDescription: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '500',
-    marginBottom: 1,
+    marginBottom: 2,
+    color: '#000000',
   },
   transactionMeta: {
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: '400',
-    opacity: 0.7,
+    color: '#6b7280',
   },
   transactionAmount: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '600',
     letterSpacing: -0.1,
   },
 
-
-  // Compact Bottom Spacer
+  // Bottom Spacer
   bottomSpacer: {
     height: 16,
   },

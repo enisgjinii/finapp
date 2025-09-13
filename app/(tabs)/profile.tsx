@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Text, Card, Button, Avatar, Divider, List, Switch, useTheme as usePaperTheme } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View, ScrollView, Alert, TouchableOpacity, Platform } from 'react-native';
+import { Text, Surface, Button, Avatar, Divider, Switch } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { useTheme } from '../../src/providers/ThemeProvider';
@@ -12,7 +11,6 @@ import {
 
 export default function ProfileScreen(): React.JSX.Element {
   const { user, signOut } = useAuth();
-  const paperTheme = usePaperTheme();
   const { themeMode, setThemeMode } = useTheme();
   const [notifications, setNotifications] = useState(true);
   const [biometricAuth, setBiometricAuth] = useState(false);
@@ -128,318 +126,505 @@ export default function ProfileScreen(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: paperTheme.colors.background }]} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text variant="headlineMedium" style={[styles.title, { color: paperTheme.colors.onBackground }]}>
-          Profile
-        </Text>
-
-      <Card style={[styles.profileCard, {
-        backgroundColor: paperTheme.colors.surface,
-        borderColor: paperTheme.colors.outline
-      }]}>
-        <Card.Content style={styles.profileContent}>
-          <View style={styles.avatarContainer}>
-            <Avatar.Text
-              size={80}
-              label={getInitials(user?.displayName)}
-              style={[styles.avatar, { backgroundColor: paperTheme.colors.primary }]}
-            />
-            <Button
-              mode="outlined"
-              icon={Edit}
-              onPress={() => Alert.alert('Not Implemented', 'Edit profile feature is not yet implemented.')}
-              style={[styles.editButton, { borderColor: paperTheme.colors.outline }]}
-            >
-              Edit
-            </Button>
-          </View>
-
-          <View style={styles.userInfo}>
-            <Text variant="headlineSmall" style={[styles.userName, { color: paperTheme.colors.onSurface }]}>
-              {user?.displayName || 'User'}
-            </Text>
-            <Text variant="bodyMedium" style={[styles.userEmail, { color: paperTheme.colors.onSurfaceVariant }]}>
-              {user?.email}
-            </Text>
-            <Text variant="bodySmall" style={[styles.userId, { color: paperTheme.colors.onSurfaceVariant }]}>
-              ID: {user?.uid?.slice(0, 8)}...
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
+              Profile
             </Text>
           </View>
-        </Card.Content>
-      </Card>
+        </View>
+      </View>
 
-      <Card style={[styles.settingsCard, {
-        backgroundColor: paperTheme.colors.surface,
-        borderColor: paperTheme.colors.outline
-      }]}>
-        <Card.Content>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Account Settings
-          </Text>
-
-          <List.Item
-            title="Email"
-            description={user?.email}
-            left={(props) => <List.Icon {...props} icon={Mail} />}
-            onPress={() => Alert.alert('Not Implemented', 'Email change feature is not yet implemented.')}
-            style={styles.listItem}
-          />
-
-          <List.Item
-            title="Password"
-            description="Change your password"
-            left={(props) => <List.Icon {...props} icon={Shield} />}
-            onPress={() => Alert.alert('Not Implemented', 'Password change feature is not yet implemented.')}
-            style={styles.listItem}
-          />
-
-          <Divider style={styles.divider} />
-
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Appearance
-          </Text>
-
-          <View style={styles.themeSelector}>
-            <Text variant="bodyMedium" style={[styles.themeLabel, { color: paperTheme.colors.onSurface }]}>
-              Theme
-            </Text>
-            <View style={styles.themeButtons}>
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Profile Card */}
+        <Surface style={styles.profileCard}>
+          <View style={styles.profileContent}>
+            <View style={styles.avatarContainer}>
+              <Avatar.Text
+                size={80}
+                label={getInitials(user?.displayName)}
+                style={styles.avatar}
+              />
               <Button
-                mode={themeMode === 'light' ? 'contained' : 'outlined'}
-                onPress={() => setThemeMode('light')}
-                icon={Sun}
-                style={styles.themeButton}
-                compact
+                mode="outlined"
+                icon={Edit}
+                onPress={() => Alert.alert('Not Implemented', 'Edit profile feature is not yet implemented.')}
+                style={styles.editButton}
               >
-                Light
-              </Button>
-              <Button
-                mode={themeMode === 'dark' ? 'contained' : 'outlined'}
-                onPress={() => setThemeMode('dark')}
-                icon={Moon}
-                style={styles.themeButton}
-                compact
-              >
-                Dark
-              </Button>
-              <Button
-                mode={themeMode === 'system' ? 'contained' : 'outlined'}
-                onPress={() => setThemeMode('system')}
-                icon={Globe}
-                style={styles.themeButton}
-                compact
-              >
-                System
+                Edit
               </Button>
             </View>
+
+            <View style={styles.userInfo}>
+              <Text variant="headlineSmall" style={styles.userName}>
+                {user?.displayName || 'User'}
+              </Text>
+              <Text variant="bodyMedium" style={styles.userEmail}>
+                {user?.email}
+              </Text>
+              <Text variant="bodySmall" style={styles.userId}>
+                ID: {user?.uid?.slice(0, 8)}...
+              </Text>
+            </View>
           </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
+        {/* Account Settings */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Account Settings
+            </Text>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Notifications
-          </Text>
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Email change feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Mail size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Email
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    {user?.email}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Push Notifications"
-            description="Receive notifications for important events"
-            left={(props) => <List.Icon {...props} icon={Bell} />}
-            right={() => (
-              <Switch
-                value={notifications}
-                onValueChange={setNotifications}
-                color={paperTheme.colors.primary}
-              />
-            )}
-            style={styles.listItem}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Password change feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Shield size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Password
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Change your password
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
+        {/* Appearance */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Appearance
+            </Text>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Security
-          </Text>
+            <View style={styles.themeSelector}>
+              <Text variant="bodyMedium" style={styles.themeLabel}>
+                Theme
+              </Text>
+              <View style={styles.themeButtons}>
+                <Button
+                  mode={themeMode === 'light' ? 'contained' : 'outlined'}
+                  onPress={() => setThemeMode('light')}
+                  icon={Sun}
+                  style={styles.themeButton}
+                  compact
+                >
+                  Light
+                </Button>
+                <Button
+                  mode={themeMode === 'dark' ? 'contained' : 'outlined'}
+                  onPress={() => setThemeMode('dark')}
+                  icon={Moon}
+                  style={styles.themeButton}
+                  compact
+                >
+                  Dark
+                </Button>
+                <Button
+                  mode={themeMode === 'system' ? 'contained' : 'outlined'}
+                  onPress={() => setThemeMode('system')}
+                  icon={Globe}
+                  style={styles.themeButton}
+                  compact
+                >
+                  System
+                </Button>
+              </View>
+            </View>
+          </View>
+        </Surface>
 
-          <List.Item
-            title="Biometric Authentication"
-            description="Use fingerprint or face ID to unlock the app"
-            left={(props) => <List.Icon {...props} icon={Lock} />}
-            right={() => (
-              <Switch
-                value={biometricAuth}
-                onValueChange={setBiometricAuth}
-                color={paperTheme.colors.primary}
-              />
-            )}
-            style={styles.listItem}
-          />
+        {/* Notifications */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Notifications
+            </Text>
 
-          <Divider style={styles.divider} />
+            <View style={styles.settingItem}>
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Bell size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Push Notifications
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Receive notifications for important events
+                  </Text>
+                </View>
+                <Switch
+                  value={notifications}
+                  onValueChange={setNotifications}
+                />
+              </View>
+            </View>
+          </View>
+        </Surface>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Data Management
-          </Text>
+        {/* Security */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Security
+            </Text>
 
-          <List.Item
-            title="Auto Backup"
-            description="Automatically backup your data to cloud"
-            left={(props) => <List.Icon {...props} icon={Database} />}
-            right={() => (
-              <Switch
-                value={autoBackup}
-                onValueChange={setAutoBackup}
-                color={paperTheme.colors.primary}
-              />
-            )}
-            style={styles.listItem}
-          />
+            <View style={styles.settingItem}>
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Lock size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Biometric Authentication
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Use fingerprint or face ID to unlock the app
+                  </Text>
+                </View>
+                <Switch
+                  value={biometricAuth}
+                  onValueChange={setBiometricAuth}
+                />
+              </View>
+            </View>
+          </View>
+        </Surface>
 
-          <List.Item
-            title="Export Data"
-            description="Download your data as CSV file"
-            left={(props) => <List.Icon {...props} icon={Download} />}
-            onPress={handleExportData}
-            style={styles.listItem}
-          />
+        {/* Data Management */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Data Management
+            </Text>
 
-          <List.Item
-            title="Import Data"
-            description="Import transactions from CSV file"
-            left={(props) => <List.Icon {...props} icon={Upload} />}
-            onPress={handleImportData}
-            style={styles.listItem}
-          />
+            <View style={styles.settingItem}>
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Database size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Auto Backup
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Automatically backup your data to cloud
+                  </Text>
+                </View>
+                <Switch
+                  value={autoBackup}
+                  onValueChange={setAutoBackup}
+                />
+              </View>
+            </View>
 
-          <List.Item
-            title="Clear All Data"
-            description="Permanently delete all your data"
-            left={(props) => <List.Icon {...props} icon={Trash2} color={paperTheme.colors.error} />}
-            onPress={handleClearData}
-            style={styles.listItem}
-            titleStyle={{ color: paperTheme.colors.error }}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handleExportData}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Download size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Export Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Download your data as CSV file
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Divider style={styles.divider} />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handleImportData}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Upload size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Import Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Import transactions from CSV file
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Currency & Region
-          </Text>
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handleClearData}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Trash2 size={20} color="#dc2626" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={[styles.settingTitle, { color: '#dc2626' }]}>
+                    Clear All Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Permanently delete all your data
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <List.Item
-            title="Default Currency"
-            description="USD - US Dollar"
-            left={(props) => <List.Icon {...props} icon={CreditCard} />}
-            onPress={() => Alert.alert('Not Implemented', 'Currency selection feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+        {/* Currency & Region */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Currency & Region
+            </Text>
 
-          <List.Item
-            title="Language"
-            description="English"
-            left={(props) => <List.Icon {...props} icon={Globe} />}
-            onPress={() => Alert.alert('Not Implemented', 'Language selection feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Currency selection feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <CreditCard size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Default Currency
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    USD - US Dollar
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Divider style={styles.divider} />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Language selection feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Globe size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Language
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    English
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Support & About
-          </Text>
+        {/* Support & About */}
+        <Surface style={styles.settingsCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Support & About
+            </Text>
 
-          <List.Item
-            title="Help & Support"
-            description="Get help and contact support"
-            left={(props) => <List.Icon {...props} icon={HelpCircle} />}
-            onPress={() => Alert.alert('Not Implemented', 'Help and support feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Help and support feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <HelpCircle size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Help & Support
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Get help and contact support
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Privacy Policy"
-            description="Read our privacy policy"
-            left={(props) => <List.Icon {...props} icon={Shield} />}
-            onPress={() => Alert.alert('Not Implemented', 'Privacy policy feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('Not Implemented', 'Privacy policy feature is not yet implemented.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Shield size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    Privacy Policy
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Read our privacy policy
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="About"
-            description="App version and information"
-            left={(props) => <List.Icon {...props} icon={Info} />}
-            onPress={() => Alert.alert('About', 'Finance Tracker v1.0.0\n\nA simple and powerful app to manage your personal finances.\n\nBuilt with React Native and Expo.')}
-            style={styles.listItem}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => Alert.alert('About', 'Finance Tracker v1.0.0\n\nA simple and powerful app to manage your personal finances.\n\nBuilt with React Native and Expo.')}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Info size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={styles.settingTitle}>
+                    About
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    App version and information
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Delete Account"
-            description="Permanently delete your account"
-            left={(props) => <List.Icon {...props} icon={Trash2} color={paperTheme.colors.error} />}
-            onPress={handleDeleteAccount}
-            style={styles.listItem}
-            titleStyle={{ color: paperTheme.colors.error }}
-          />
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={handleDeleteAccount}
+              activeOpacity={0.7}
+            >
+              <View style={styles.settingContent}>
+                <View style={styles.settingIcon}>
+                  <Trash2 size={20} color="#dc2626" />
+                </View>
+                <View style={styles.settingDetails}>
+                  <Text variant="bodyMedium" style={[styles.settingTitle, { color: '#dc2626' }]}>
+                    Delete Account
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Permanently delete your account
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Divider style={styles.divider} />
+            <Button
+              mode="outlined"
+              icon={LogOut}
+              onPress={handleSignOut}
+              style={styles.signOutButton}
+              textColor="#dc2626"
+              buttonColor="transparent"
+            >
+              Sign Out
+            </Button>
+          </View>
+        </Surface>
 
-          <Button
-            mode="outlined"
-            icon={LogOut}
-            onPress={handleSignOut}
-            style={styles.signOutButton}
-            textColor={paperTheme.colors.error}
-            buttonColor="transparent"
-          >
-            Sign Out
-          </Button>
-        </Card.Content>
-      </Card>
-
-      <Card style={[styles.infoCard, {
-        backgroundColor: paperTheme.colors.surface,
-        borderColor: paperTheme.colors.outline
-      }]}>
-        <Card.Content>
-          <Text variant="titleMedium" style={[styles.infoTitle, { color: paperTheme.colors.onSurface }]}>
-            App Information
-          </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
-            Version: 1.0.0
-          </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
-            Build: 2024.1.0
-          </Text>
-        </Card.Content>
-      </Card>
-    </ScrollView>
-    </SafeAreaView>
+        {/* App Information */}
+        <Surface style={styles.infoCard}>
+          <View style={styles.cardContent}>
+            <Text variant="titleMedium" style={styles.infoTitle}>
+              App Information
+            </Text>
+            <Text variant="bodySmall" style={styles.infoText}>
+              Version: 1.0.0
+            </Text>
+            <Text variant="bodySmall" style={styles.infoText}>
+              Build: 2024.1.0
+            </Text>
+          </View>
+        </Surface>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
-  title: {
-    textAlign: 'center',
-    marginTop: 48,
-    marginBottom: 24,
-    fontSize: 32,
+  header: {
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 20 : 15,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  screenTitle: {
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: -0.025,
+    letterSpacing: -0.3,
+    marginBottom: 0,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
   profileCard: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
+    marginBottom: 12,
   },
   profileContent: {
     alignItems: 'center',
     paddingVertical: 24,
+    paddingHorizontal: 16,
   },
   avatarContainer: {
     alignItems: 'center',
@@ -447,9 +632,11 @@ const styles = StyleSheet.create({
   },
   avatar: {
     marginBottom: 12,
+    backgroundColor: '#000000',
   },
   editButton: {
     borderRadius: 8,
+    borderColor: '#e5e7eb',
   },
   userInfo: {
     alignItems: 'center',
@@ -458,53 +645,90 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '600',
     marginBottom: 4,
+    color: '#000000',
   },
   userEmail: {
     fontSize: 16,
     marginBottom: 4,
+    color: '#6b7280',
   },
   userId: {
     fontSize: 12,
+    color: '#6b7280',
   },
   settingsCard: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
+    marginBottom: 12,
+  },
+  cardContent: {
+    padding: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 16,
+    color: '#000000',
   },
-  listItem: {
-    paddingVertical: 8,
+  settingItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
-  divider: {
-    marginVertical: 16,
+  settingContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f9fafb',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  settingDetails: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 2,
+    color: '#000000',
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: '#6b7280',
   },
   signOutButton: {
     marginTop: 16,
     borderRadius: 8,
+    borderColor: '#dc2626',
   },
   infoCard: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
+    marginBottom: 16,
   },
   infoTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#000000',
   },
   infoText: {
     fontSize: 14,
     marginBottom: 4,
+    color: '#6b7280',
   },
   themeSelector: {
     marginBottom: 16,
@@ -513,6 +737,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 12,
+    color: '#000000',
   },
   themeButtons: {
     flexDirection: 'row',
