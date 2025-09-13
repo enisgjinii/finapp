@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, Alert } from 'react-native';
-import { Text, Card, List, Switch, Button, Divider, useTheme as usePaperTheme, SegmentedButtons } from 'react-native-paper';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, View, ScrollView, Alert, Platform, TouchableOpacity } from 'react-native';
+import { Text, Surface, Switch, Button, Divider, useTheme as usePaperTheme, SegmentedButtons, IconButton } from 'react-native-paper';
 import { useTheme } from '../../src/providers/ThemeProvider';
 import { useCurrency, CURRENCIES } from '../../src/providers/CurrencyProvider';
 import { 
@@ -89,302 +88,502 @@ export default function SettingsScreen(): React.JSX.Element {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: paperTheme.colors.background }]} edges={['top']}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text variant="headlineMedium" style={[styles.title, { color: paperTheme.colors.onBackground }]}>
-          Settings
-        </Text>
-
-      <Card style={[styles.settingsCard, {
-        backgroundColor: paperTheme.colors.surface,
-        borderColor: paperTheme.colors.outline
-      }]}>
-        <Card.Content>
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Appearance
-          </Text>
-
-          <View style={styles.themeSelector}>
-            <Text variant="bodyMedium" style={[styles.themeLabel, { color: paperTheme.colors.onSurface }]}>
-              Theme
+    <View style={styles.container}>
+      {/* Enhanced Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
+              Settings
             </Text>
-            <SegmentedButtons
-              value={themeMode}
-              onValueChange={setThemeMode}
-              buttons={[
-                {
-                  value: 'light',
-                  label: 'Light',
-                  icon: Sun,
-                },
-                {
-                  value: 'dark',
-                  label: 'Dark',
-                  icon: Moon,
-                },
-                {
-                  value: 'system',
-                  label: 'System',
-                  icon: Globe,
-                },
-              ]}
-              style={styles.segmentedButtons}
-            />
+          </View>
+        </View>
+      </View>
+
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+
+        {/* Appearance Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Appearance
+            </Text>
           </View>
 
-          <View style={styles.currencySelector}>
-            <Text variant="bodyMedium" style={[styles.currencyLabel, { color: paperTheme.colors.onSurface }]}>
-              Primary Currency
-            </Text>
-            <SegmentedButtons
-              value={primaryCurrency}
-              onValueChange={setPrimaryCurrency}
-              buttons={[
-                {
-                  value: 'EUR',
-                  label: 'EUR',
-                },
-                {
-                  value: 'USD',
-                  label: 'USD',
-                },
-                {
-                  value: 'GBP',
-                  label: 'GBP',
-                },
-              ]}
-              style={styles.segmentedButtons}
-            />
+          <View style={styles.sectionContent}>
+            <View style={styles.themeSelector}>
+              <Text variant="bodyMedium" style={styles.themeLabel}>
+                Theme
+              </Text>
+              <SegmentedButtons
+                value={themeMode}
+                onValueChange={setThemeMode}
+                buttons={[
+                  {
+                    value: 'light',
+                    label: 'Light',
+                    icon: Sun,
+                  },
+                  {
+                    value: 'dark',
+                    label: 'Dark',
+                    icon: Moon,
+                  },
+                  {
+                    value: 'system',
+                    label: 'System',
+                    icon: Globe,
+                  },
+                ]}
+                style={styles.segmentedButtons}
+              />
+            </View>
+
+            <View style={styles.currencySelector}>
+              <Text variant="bodyMedium" style={styles.currencyLabel}>
+                Primary Currency
+              </Text>
+              <SegmentedButtons
+                value={primaryCurrency}
+                onValueChange={setPrimaryCurrency}
+                buttons={[
+                  {
+                    value: 'EUR',
+                    label: 'EUR',
+                  },
+                  {
+                    value: 'USD',
+                    label: 'USD',
+                  },
+                  {
+                    value: 'GBP',
+                    label: 'GBP',
+                  },
+                ]}
+                style={styles.segmentedButtons}
+              />
+            </View>
           </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
-
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Notifications
-          </Text>
-
-          <List.Item
-            title="Push Notifications"
-            description="Receive notifications for important events"
-            left={(props) => <List.Icon {...props} icon={Bell} />}
-            right={() => (
+        {/* Notifications Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Notifications
+            </Text>
+          </View>
+          
+          <View style={styles.sectionContent}>
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Bell size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Push Notifications
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Receive notifications for important events
+                  </Text>
+                </View>
+              </View>
               <Switch
                 value={notifications}
                 onValueChange={setNotifications}
-                color={paperTheme.colors.primary}
+                color="#000000"
               />
-            )}
-            style={styles.listItem}
-          />
+            </View>
+          </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
-
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Security
-          </Text>
-
-          <List.Item
-            title="Biometric Authentication"
-            description="Use fingerprint or face ID to unlock the app"
-            left={(props) => <List.Icon {...props} icon={Lock} />}
-            right={() => (
+        {/* Security Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Security
+            </Text>
+          </View>
+          
+          <View style={styles.sectionContent}>
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Lock size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Biometric Authentication
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Use fingerprint or face ID to unlock the app
+                  </Text>
+                </View>
+              </View>
               <Switch
                 value={biometricAuth}
                 onValueChange={setBiometricAuth}
-                color={paperTheme.colors.primary}
+                color="#000000"
               />
-            )}
-            style={styles.listItem}
-          />
+            </View>
+          </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
-
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Data Management
-          </Text>
-
-          <List.Item
-            title="Auto Backup"
-            description="Automatically backup your data to cloud"
-            left={(props) => <List.Icon {...props} icon={Database} />}
-            right={() => (
+        {/* Data Management Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Data Management
+            </Text>
+          </View>
+          
+          <View style={styles.sectionContent}>
+            <View style={styles.settingItem}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Database size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Auto Backup
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Automatically backup your data to cloud
+                  </Text>
+                </View>
+              </View>
               <Switch
                 value={autoBackup}
                 onValueChange={setAutoBackup}
-                color={paperTheme.colors.primary}
+                color="#000000"
               />
-            )}
-            style={styles.listItem}
-          />
+            </View>
 
-          <List.Item
-            title="Export Data"
-            description="Download your data as CSV file"
-            left={(props) => <List.Icon {...props} icon={Download} />}
-            onPress={handleExportData}
-            style={styles.listItem}
-          />
+            <TouchableOpacity style={styles.settingItem} onPress={handleExportData}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Download size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Export Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Download your data as CSV file
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Import Data"
-            description="Import transactions from CSV file"
-            left={(props) => <List.Icon {...props} icon={Upload} />}
-            onPress={handleImportData}
-            style={styles.listItem}
-          />
+            <TouchableOpacity style={styles.settingItem} onPress={handleImportData}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Upload size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Import Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Import transactions from CSV file
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Clear All Data"
-            description="Permanently delete all your data"
-            left={(props) => <List.Icon {...props} icon={Trash2} color={paperTheme.colors.error} />}
-            onPress={handleClearData}
-            style={styles.listItem}
-            titleStyle={{ color: paperTheme.colors.error }}
-          />
+            <TouchableOpacity style={styles.settingItem} onPress={handleClearData}>
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Trash2 size={20} color="#dc2626" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={[styles.settingTitle, { color: '#dc2626' }]}>
+                    Clear All Data
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Permanently delete all your data
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <Divider style={styles.divider} />
+        {/* Currency & Region Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Currency & Region
+            </Text>
+          </View>
+          
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={styles.settingItem} 
+              onPress={() => Alert.alert('Not Implemented', 'Currency selection feature is not yet implemented.')}
+            >
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <CreditCard size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Default Currency
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    USD - US Dollar
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Currency & Region
-          </Text>
+            <TouchableOpacity 
+              style={styles.settingItem} 
+              onPress={() => Alert.alert('Not Implemented', 'Language selection feature is not yet implemented.')}
+            >
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Globe size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Language
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    English
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <List.Item
-            title="Default Currency"
-            description="USD - US Dollar"
-            left={(props) => <List.Icon {...props} icon={CreditCard} />}
-            onPress={() => Alert.alert('Not Implemented', 'Currency selection feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+        {/* Support & About Section */}
+        <Surface style={styles.sectionCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleLarge" style={styles.sectionTitle}>
+              Support & About
+            </Text>
+          </View>
+          
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={styles.settingItem} 
+              onPress={() => Alert.alert('Not Implemented', 'Help and support feature is not yet implemented.')}
+            >
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <HelpCircle size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Help & Support
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Get help and contact support
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <List.Item
-            title="Language"
-            description="English"
-            left={(props) => <List.Icon {...props} icon={Globe} />}
-            onPress={() => Alert.alert('Not Implemented', 'Language selection feature is not yet implemented.')}
-            style={styles.listItem}
-          />
+            <TouchableOpacity 
+              style={styles.settingItem} 
+              onPress={() => Alert.alert('Not Implemented', 'Privacy policy feature is not yet implemented.')}
+            >
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Shield size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    Privacy Policy
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    Read our privacy policy
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
 
-          <Divider style={styles.divider} />
+            <TouchableOpacity 
+              style={styles.settingItem} 
+              onPress={() => Alert.alert('About', 'Finance Tracker v1.0.0\n\nA simple and powerful app to manage your personal finances.\n\nBuilt with React Native and Expo.')}
+            >
+              <View style={styles.settingLeft}>
+                <View style={styles.settingIcon}>
+                  <Info size={20} color="#6b7280" />
+                </View>
+                <View style={styles.settingText}>
+                  <Text variant="bodyLarge" style={styles.settingTitle}>
+                    About
+                  </Text>
+                  <Text variant="bodySmall" style={styles.settingDescription}>
+                    App version and information
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </Surface>
 
-          <Text variant="titleLarge" style={[styles.sectionTitle, { color: paperTheme.colors.onSurface }]}>
-            Support & About
-          </Text>
-
-          <List.Item
-            title="Help & Support"
-            description="Get help and contact support"
-            left={(props) => <List.Icon {...props} icon={HelpCircle} />}
-            onPress={() => Alert.alert('Not Implemented', 'Help and support feature is not yet implemented.')}
-            style={styles.listItem}
-          />
-
-          <List.Item
-            title="Privacy Policy"
-            description="Read our privacy policy"
-            left={(props) => <List.Icon {...props} icon={Shield} />}
-            onPress={() => Alert.alert('Not Implemented', 'Privacy policy feature is not yet implemented.')}
-            style={styles.listItem}
-          />
-
-          <List.Item
-            title="About"
-            description="App version and information"
-            left={(props) => <List.Icon {...props} icon={Info} />}
-            onPress={() => Alert.alert('About', 'Finance Tracker v1.0.0\n\nA simple and powerful app to manage your personal finances.\n\nBuilt with React Native and Expo.')}
-            style={styles.listItem}
-          />
-        </Card.Content>
-      </Card>
-
-      <Card style={[styles.infoCard, {
-        backgroundColor: paperTheme.colors.surface,
-        borderColor: paperTheme.colors.outline
-      }]}>
-        <Card.Content>
-          <Text variant="titleMedium" style={[styles.infoTitle, { color: paperTheme.colors.onSurface }]}>
-            App Information
-          </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
-            Version: 1.0.0
-          </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
-            Build: 2024.1.0
-          </Text>
-          <Text variant="bodySmall" style={[styles.infoText, { color: paperTheme.colors.onSurfaceVariant }]}>
-            Platform: React Native + Expo
-          </Text>
-        </Card.Content>
-      </Card>
-    </ScrollView>
-    </SafeAreaView>
+        {/* App Information */}
+        <Surface style={styles.infoCard} elevation={1}>
+          <View style={styles.sectionHeader}>
+            <Text variant="titleMedium" style={styles.infoTitle}>
+              App Information
+            </Text>
+          </View>
+          <View style={styles.sectionContent}>
+            <Text variant="bodySmall" style={styles.infoText}>
+              Version: 1.0.0
+            </Text>
+            <Text variant="bodySmall" style={styles.infoText}>
+              Build: 2024.1.0
+            </Text>
+            <Text variant="bodySmall" style={styles.infoText}>
+              Platform: React Native + Expo
+            </Text>
+          </View>
+        </Surface>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
-  title: {
-    textAlign: 'center',
-    marginTop: 48,
-    marginBottom: 24,
-    fontSize: 32,
+  // Header Styles
+  header: {
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 20 : 15,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerLeft: {
+    flex: 1,
+  },
+  screenTitle: {
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: -0.025,
+    letterSpacing: -0.3,
+    marginBottom: 0,
   },
-  settingsCard: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+  // Content Styles
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  // Section Card Styles
+  sectionCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
+    marginBottom: 12,
+  },
+  sectionHeader: {
+    padding: 16,
+    paddingBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    marginBottom: 16,
+    color: '#000000',
   },
-  listItem: {
-    paddingVertical: 8,
+  sectionContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
   },
-  divider: {
-    marginVertical: 16,
+  // Setting Item Styles
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
   },
-  infoCard: {
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 12,
-    elevation: 0,
-    shadowOpacity: 0,
-    borderWidth: 1,
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
-  infoTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
+  settingIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f9fafb',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
   },
-  infoText: {
+  settingText: {
+    flex: 1,
+  },
+  settingTitle: {
     fontSize: 14,
-    marginBottom: 4,
+    fontWeight: '500',
+    color: '#000000',
+    marginBottom: 2,
   },
+  settingDescription: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  // Theme and Currency Selectors
   themeSelector: {
     marginBottom: 16,
   },
   themeLabel: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '500',
-    marginBottom: 12,
-  },
-  segmentedButtons: {
-    marginTop: 8,
+    color: '#6b7280',
+    marginBottom: 8,
   },
   currencySelector: {
     marginBottom: 16,
   },
   currencyLabel: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '500',
-    marginBottom: 12,
+    color: '#6b7280',
+    marginBottom: 8,
+  },
+  segmentedButtons: {
+    marginTop: 4,
+  },
+  // Info Card Styles
+  infoCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 16,
+  },
+  infoTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  infoText: {
+    fontSize: 12,
+    color: '#6b7280',
+    marginBottom: 4,
   },
 });

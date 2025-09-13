@@ -1,0 +1,95 @@
+---
+globs: *.tsx
+description: Styling standards and StyleSheet patterns
+---
+
+# Styling Standards
+
+## StyleSheet Organization
+Organize styles in this order:
+1. Container styles
+2. Header styles
+3. Content styles
+4. Card/Surface styles
+5. Item/List styles
+6. Form/Input styles
+7. Button styles
+8. Text styles
+9. Utility styles
+
+## Naming Conventions
+- Use descriptive names: `container`, `headerContent`, `itemTitle`
+- Group related styles: `headerLeft`, `headerRight`, `headerActions`
+- Use consistent prefixes: `card`, `cardContent`, `cardHeader`
+- Avoid abbreviations: use `container` not `cont`
+
+## Common Style Patterns
+
+### Container
+```tsx
+container: {
+  flex: 1,
+  backgroundColor: '#ffffff',
+},
+```
+
+### Header
+```tsx
+header: {
+  backgroundColor: '#ffffff',
+  paddingTop: Platform.OS === 'ios' ? 20 : 15,
+  paddingBottom: 12,
+  paddingHorizontal: 16,
+},
+```
+
+### Card/Surface
+```tsx
+card: {
+  backgroundColor: '#ffffff',
+  borderWidth: 1,
+  borderColor: '#e5e7eb',
+  borderRadius: 12,
+  elevation: 0,
+  shadowOpacity: 0,
+  marginBottom: 8,
+},
+```
+
+### Icon Container
+```tsx
+iconContainer: {
+  width: 36,
+  height: 36,
+  borderRadius: 10,
+  backgroundColor: '#f9fafb',
+  justifyContent: 'center',
+  alignItems: 'center',
+  marginRight: 12,
+},
+```
+
+### Text Styles
+```tsx
+title: {
+  fontSize: 18,
+  fontWeight: '600',
+  color: '#000000',
+},
+subtitle: {
+  fontSize: 12,
+  color: '#6b7280',
+},
+```
+
+## Responsive Design
+- Use `Dimensions.get('window')` for screen width
+- Apply consistent padding: 16px for content, 12px for cards
+- Use `flex: 1` for flexible layouts
+- Implement proper text wrapping with `numberOfLines` and `ellipsizeMode`
+
+## Platform-Specific Styles
+```tsx
+paddingTop: Platform.OS === 'ios' ? 20 : 15,
+```
+Use Platform.OS for iOS/Android differences in padding, shadows, and other platform-specific properties.

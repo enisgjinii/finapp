@@ -22,7 +22,9 @@ import {
   Button,
   Surface,
   Divider,
-  Badge
+  Badge,
+  Menu,
+  TouchableRipple
 } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
@@ -49,7 +51,13 @@ import {
   ChevronUp,
   Wallet,
   PieChart,
-  BarChart3
+  BarChart3,
+  List,
+  Grid3X3,
+  Columns,
+  Rows,
+  Square,
+  AlignLeft
 } from 'lucide-react-native';
 import { Transaction } from '../../src/types';
 
@@ -66,13 +74,17 @@ interface TransactionFilters {
   category?: string;
 }
 
+// View mode type
+type ViewMode = 'list' | 'compact' | 'minimal' | 'detailed' | 'timeline';
+
 // Performance optimized transaction item component
 const TransactionItem = React.memo<{
   transaction: Transaction;
   account: any;
   onPress: () => void;
   theme: any;
-}>(({ transaction, account, onPress, theme }) => {
+  viewMode?: ViewMode;
+}>(({ transaction, account, onPress, theme, viewMode = 'list' }) => {
   const isIncome = transaction.amount > 0;
   const amountColor = isIncome ? '#000000' : '#dc2626'; // Black for income, red for expenses
   
@@ -92,6 +104,211 @@ const TransactionItem = React.memo<{
       minute: '2-digit'
     });
   };
+
+  if (viewMode === 'compact') {
+    return (
+      <TouchableOpacity
+        style={styles.transactionItemCompact}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.transactionContentCompact}>
+          <View style={[styles.transactionIconCompact, {
+            backgroundColor: '#f9fafb'
+          }]}>
+            {isIncome ? (
+              <TrendingUp size={14} color="#000000" />
+            ) : (
+              <TrendingDown size={14} color="#dc2626" />
+            )}
+          </View>
+
+          <View style={styles.transactionDetailsCompact}>
+            <Text
+              variant="bodySmall"
+              style={styles.transactionTitleCompact}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {transaction.description || transaction.category || 'Transaction'}
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={styles.transactionDateCompact}
+            >
+              {formatDate(transaction.date)}
+            </Text>
+          </View>
+
+          <Text
+            variant="bodyMedium"
+            style={[styles.amountTextCompact, { color: amountColor }]}
+          >
+            {isIncome ? '' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  if (viewMode === 'minimal') {
+    return (
+      <TouchableOpacity
+        style={styles.transactionItemMinimal}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.transactionContentMinimal}>
+          <Text
+            variant="bodySmall"
+            style={styles.transactionTitleMinimal}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {transaction.description || transaction.category || 'Transaction'}
+          </Text>
+          <Text
+            variant="bodySmall"
+            style={[styles.amountTextMinimal, { color: amountColor }]}
+          >
+            {isIncome ? '' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  if (viewMode === 'detailed') {
+    return (
+      <TouchableOpacity
+        style={styles.transactionItemDetailed}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.transactionContentDetailed}>
+          <View style={[styles.transactionIconDetailed, {
+            backgroundColor: '#f9fafb'
+          }]}>
+            {isIncome ? (
+              <TrendingUp size={20} color="#000000" />
+            ) : (
+              <TrendingDown size={20} color="#dc2626" />
+            )}
+          </View>
+
+          <View style={styles.transactionDetailsDetailed}>
+            <Text
+              variant="bodyMedium"
+              style={styles.transactionTitleDetailed}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {transaction.description || transaction.category || 'Transaction'}
+            </Text>
+
+            <View style={styles.transactionMetaDetailed}>
+              <Text
+                variant="bodySmall"
+                style={styles.transactionDateDetailed}
+              >
+                {formatDate(transaction.date)}
+              </Text>
+              {account && (
+                <Text
+                  variant="bodySmall"
+                  style={styles.transactionAccountDetailed}
+                >
+                  • {account.name}
+                </Text>
+              )}
+            </View>
+
+            {transaction.category && (
+              <View style={styles.categoryBadgeDetailed}>
+                <Text style={styles.categoryBadgeTextDetailed}>
+                  {transaction.category}
+                </Text>
+              </View>
+            )}
+
+            {transaction.source && (
+              <View style={styles.sourceBadge}>
+                <Text style={styles.sourceBadgeText}>
+                  {transaction.source}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <View style={styles.transactionAmountDetailed}>
+            <Text
+              variant="titleLarge"
+              style={[styles.amountTextDetailed, { color: amountColor }]}
+            >
+              {isIncome ? '' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+            </Text>
+            <Text
+              variant="bodySmall"
+              style={styles.amountTypeText}
+            >
+              {isIncome ? 'Income' : 'Expense'}
+            </Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  if (viewMode === 'timeline') {
+    return (
+      <TouchableOpacity
+        style={styles.transactionItemTimeline}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.timelineContainer}>
+          <View style={[styles.timelineDot, { backgroundColor: isIncome ? '#10b981' : '#dc2626' }]} />
+          <View style={styles.timelineLine} />
+        </View>
+        
+        <View style={styles.transactionContentTimeline}>
+          <View style={styles.transactionHeaderTimeline}>
+            <Text
+              variant="bodyMedium"
+              style={styles.transactionTitleTimeline}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {transaction.description || transaction.category || 'Transaction'}
+            </Text>
+            <Text
+              variant="titleMedium"
+              style={[styles.amountTextTimeline, { color: amountColor }]}
+            >
+              {isIncome ? '' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+            </Text>
+          </View>
+          
+          <View style={styles.transactionFooterTimeline}>
+            <Text
+              variant="bodySmall"
+              style={styles.transactionDateTimeline}
+            >
+              {formatDate(transaction.date)}
+            </Text>
+            {account && (
+              <Text
+                variant="bodySmall"
+                style={styles.transactionAccountTimeline}
+              >
+                {account.name}
+              </Text>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
 
   return (
     <TouchableOpacity
@@ -201,6 +418,8 @@ export default function TransactionsScreen(): React.JSX.Element {
   const [refreshing, setRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [displayCount, setDisplayCount] = useState(50);
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [showViewMenu, setShowViewMenu] = useState(false);
   const [filters, setFilters] = useState<TransactionFilters>({
     search: '',
     type: 'all',
@@ -227,6 +446,9 @@ export default function TransactionsScreen(): React.JSX.Element {
       const sheetName = (tx as any).sheetName;
       if (!sheetName) return;
 
+      // Skip excluded accounts
+      if (sheetName === 'TEB Starkertela' || sheetName === 'TEB STARKARTELA' || sheetName === 'Test Sheet 1') return;
+
       if (!sheetMap.has(sheetName)) {
         sheetMap.set(sheetName, {
           name: sheetName,
@@ -251,6 +473,15 @@ export default function TransactionsScreen(): React.JSX.Element {
   // Enhanced filtering and sorting with performance optimization
   const filteredTransactions = useMemo(() => {
     let filtered = [...allTransactions];
+
+    // Filter out excluded accounts first
+    filtered = filtered.filter(tx => {
+      const sheetName = (tx as any).sheetName;
+      if (!sheetName) return true; // Keep transactions without sheetName
+      
+      // Skip excluded accounts
+      return !(sheetName === 'TEB Starkertela' || sheetName === 'TEB STARKARTELA' || sheetName === 'Test Sheet 1');
+    });
 
     // Search filter
     if (filters.search.trim()) {
@@ -393,10 +624,12 @@ export default function TransactionsScreen(): React.JSX.Element {
   const accountNames = useMemo(() => {
     const accountSet = new Set<string>();
     
-    // Add sheetName values from transactions
+    // Add sheetName values from transactions (excluding filtered accounts)
     allTransactions.forEach(tx => {
       const sheetName = (tx as any).sheetName;
-      if (sheetName) accountSet.add(sheetName);
+      if (sheetName && !(sheetName === 'TEB Starkertela' || sheetName === 'TEB STARKARTELA' || sheetName === 'Test Sheet 1')) {
+        accountSet.add(sheetName);
+      }
     });
     
     // Add account names from accounts
@@ -447,6 +680,33 @@ export default function TransactionsScreen(): React.JSX.Element {
     }).start();
   }, [showFilters, filterAnimation]);
 
+  const handleViewModeChange = useCallback((mode: ViewMode) => {
+    setViewMode(mode);
+    setShowViewMenu(false);
+  }, []);
+
+  const getViewModeIcon = useCallback(() => {
+    switch (viewMode) {
+      case 'list': return <List size={20} color="#6b7280" />;
+      case 'compact': return <Grid3X3 size={20} color="#6b7280" />;
+      case 'minimal': return <AlignLeft size={20} color="#6b7280" />;
+      case 'detailed': return <Columns size={20} color="#6b7280" />;
+      case 'timeline': return <Rows size={20} color="#6b7280" />;
+      default: return <List size={20} color="#6b7280" />;
+    }
+  }, [viewMode]);
+
+  const getViewModeLabel = useCallback((mode: ViewMode) => {
+    switch (mode) {
+      case 'list': return 'List View';
+      case 'compact': return 'Compact View';
+      case 'minimal': return 'Minimal View';
+      case 'detailed': return 'Detailed View';
+      case 'timeline': return 'Timeline View';
+      default: return 'List View';
+    }
+  }, []);
+
   // Render transaction item with memoization
   const renderTransactionItem = useCallback(({ item: transaction }: { item: Transaction }) => {
     // Use sheetName as account name, fallback to accountId lookup
@@ -460,9 +720,10 @@ export default function TransactionsScreen(): React.JSX.Element {
         account={{ name: accountName }}
         onPress={() => router.push(`/transactions/${transaction.id}`)}
         theme={theme}
+        viewMode={viewMode}
       />
     );
-  }, [accounts, theme]);
+  }, [accounts, theme, viewMode]);
 
   // Render filter section
   const renderFilters = () => (
@@ -648,9 +909,59 @@ export default function TransactionsScreen(): React.JSX.Element {
           </View>
 
           <View style={styles.headerActions}>
+            <Menu
+              visible={showViewMenu}
+              onDismiss={() => setShowViewMenu(false)}
+              anchor={
+                <TouchableRipple
+                  onPress={() => setShowViewMenu(true)}
+                  style={[styles.viewModeButton, { backgroundColor: '#f9fafb' }]}
+                  rippleColor="rgba(0, 0, 0, 0.1)"
+                >
+                  <View style={styles.viewModeButtonContent}>
+                    {getViewModeIcon()}
+                    <Text variant="bodySmall" style={styles.viewModeLabel}>
+                      {getViewModeLabel(viewMode)}
+                    </Text>
+                  </View>
+                </TouchableRipple>
+              }
+              contentStyle={styles.viewMenuContent}
+            >
+              <Menu.Item
+                onPress={() => handleViewModeChange('list')}
+                title="List View"
+                leadingIcon={() => <List size={18} color="#6b7280" />}
+                titleStyle={styles.menuItemTitle}
+              />
+              <Menu.Item
+                onPress={() => handleViewModeChange('compact')}
+                title="Compact View"
+                leadingIcon={() => <Grid3X3 size={18} color="#6b7280" />}
+                titleStyle={styles.menuItemTitle}
+              />
+              <Menu.Item
+                onPress={() => handleViewModeChange('minimal')}
+                title="Minimal View"
+                leadingIcon={() => <AlignLeft size={18} color="#6b7280" />}
+                titleStyle={styles.menuItemTitle}
+              />
+              <Menu.Item
+                onPress={() => handleViewModeChange('detailed')}
+                title="Detailed View"
+                leadingIcon={() => <Columns size={18} color="#6b7280" />}
+                titleStyle={styles.menuItemTitle}
+              />
+              <Menu.Item
+                onPress={() => handleViewModeChange('timeline')}
+                title="Timeline View"
+                leadingIcon={() => <Rows size={18} color="#6b7280" />}
+                titleStyle={styles.menuItemTitle}
+              />
+            </Menu>
             <IconButton
-              icon={() => <Filter size={24} color="#6b7280" />}
-              size={24}
+              icon={() => <Filter size={20} color="#6b7280" />}
+              size={20}
               onPress={toggleFilters}
               style={[showFilters && styles.activeFilterButton, { backgroundColor: showFilters ? '#f9fafb' : 'transparent' }]}
             />
@@ -778,7 +1089,13 @@ export default function TransactionsScreen(): React.JSX.Element {
                 </Button>
               </View>
             ) : (
-            <View style={styles.transactionsList}>
+            <View style={[
+              styles.transactionsList, 
+              viewMode === 'compact' && styles.transactionsListCompact,
+              viewMode === 'minimal' && styles.transactionsListMinimal,
+              viewMode === 'detailed' && styles.transactionsListDetailed,
+              viewMode === 'timeline' && styles.transactionsListTimeline
+            ]}>
               {displayedTransactions.map((transaction) => (
                 <TransactionItem
                   key={transaction.id}
@@ -786,6 +1103,7 @@ export default function TransactionsScreen(): React.JSX.Element {
                   account={accounts.find(a => a.id === transaction.accountId)}
                   onPress={() => router.push(`/transactions/${transaction.id}`)}
                   theme={theme}
+                  viewMode={viewMode}
                 />
               ))}
               
@@ -842,7 +1160,36 @@ const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 2,
+    gap: 4,
+  },
+  viewModeButton: {
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+  viewModeButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  viewModeLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  viewMenuContent: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 4,
+    shadowOpacity: 0.1,
+    minWidth: 180,
+  },
+  menuItemTitle: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#000000',
   },
   activeFilterButton: {
     borderRadius: 20,
@@ -1029,6 +1376,23 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingTop: 0,
   },
+  transactionsListCompact: {
+    padding: 8,
+    paddingTop: 0,
+  },
+  transactionsListMinimal: {
+    padding: 4,
+    paddingTop: 0,
+  },
+  transactionsListDetailed: {
+    padding: 20,
+    paddingTop: 0,
+  },
+  transactionsListTimeline: {
+    padding: 16,
+    paddingTop: 0,
+    paddingLeft: 8,
+  },
   transactionItem: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
@@ -1091,6 +1455,219 @@ const styles = StyleSheet.create({
   amountText: {
     fontSize: 14,
     fontWeight: '600',
+  },
+  // Compact view styles
+  transactionItemCompact: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    marginBottom: 4,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  transactionContentCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  transactionIconCompact: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  transactionDetailsCompact: {
+    flex: 1,
+  },
+  transactionTitleCompact: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginBottom: 1,
+  },
+  transactionDateCompact: {
+    fontSize: 10,
+    color: '#6b7280',
+  },
+  amountTextCompact: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  // Minimal view styles
+  transactionItemMinimal: {
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+    paddingVertical: 6,
+    paddingHorizontal: 0,
+  },
+  transactionContentMinimal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  transactionTitleMinimal: {
+    fontSize: 11,
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
+  },
+  amountTextMinimal: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  // Detailed view styles
+  transactionItemDetailed: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+  transactionContentDetailed: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    padding: 16,
+  },
+  transactionIconDetailed: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  transactionDetailsDetailed: {
+    flex: 1,
+    marginRight: 12,
+  },
+  transactionTitleDetailed: {
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 6,
+    lineHeight: 20,
+  },
+  transactionMetaDetailed: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  transactionDateDetailed: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  transactionAccountDetailed: {
+    fontSize: 12,
+    color: '#6b7280',
+  },
+  categoryBadgeDetailed: {
+    backgroundColor: '#f0f9ff',
+    borderWidth: 1,
+    borderColor: '#bae6fd',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginBottom: 6,
+  },
+  categoryBadgeTextDetailed: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#0369a1',
+  },
+  sourceBadge: {
+    backgroundColor: '#f3f4f6',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignSelf: 'flex-start',
+  },
+  sourceBadgeText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  transactionAmountDetailed: {
+    alignItems: 'flex-end',
+  },
+  amountTextDetailed: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  amountTypeText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  // Timeline view styles
+  transactionItemTimeline: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 16,
+    paddingLeft: 8,
+  },
+  timelineContainer: {
+    alignItems: 'center',
+    marginRight: 12,
+    width: 20,
+  },
+  timelineDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginBottom: 4,
+  },
+  timelineLine: {
+    width: 2,
+    flex: 1,
+    backgroundColor: '#e5e7eb',
+    minHeight: 20,
+  },
+  transactionContentTimeline: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    padding: 12,
+  },
+  transactionHeaderTimeline: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+  transactionTitleTimeline: {
+    fontSize: 13,
+    fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
+  },
+  amountTextTimeline: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  transactionFooterTimeline: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  transactionDateTimeline: {
+    fontSize: 11,
+    color: '#6b7280',
+  },
+  transactionAccountTimeline: {
+    fontSize: 11,
+    color: '#6b7280',
   },
   loadMoreContainer: {
     padding: 16,

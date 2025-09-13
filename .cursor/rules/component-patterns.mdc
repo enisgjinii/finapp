@@ -1,0 +1,102 @@
+---
+globs: *.tsx
+description: Component patterns and best practices
+---
+
+# Component Patterns
+
+## List Item Components
+Create reusable list item components with this pattern:
+
+```tsx
+const ListItem = React.memo<{
+  item: ItemType;
+  onPress: () => void;
+  theme: any;
+}>(({ item, onPress, theme }) => {
+  return (
+    <TouchableOpacity
+      style={styles.item}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <View style={styles.itemContent}>
+        <View style={styles.itemIcon}>
+          {/* Icon */}
+        </View>
+        <View style={styles.itemDetails}>
+          <Text variant="bodyMedium" style={styles.itemTitle}>
+            {item.title}
+          </Text>
+          <Text variant="bodySmall" style={styles.itemSubtitle}>
+            {item.subtitle}
+          </Text>
+        </View>
+        <View style={styles.itemAction}>
+          {/* Action content */}
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
+```
+
+## Filter Components
+Implement consistent filter patterns:
+
+```tsx
+const [filters, setFilters] = useState<FilterType>({
+  search: '',
+  type: 'all',
+  sortBy: 'date',
+  sortOrder: 'desc',
+});
+
+const filteredData = useMemo(() => {
+  let filtered = [...data];
+  // Apply filters
+  return filtered;
+}, [data, filters]);
+```
+
+## Empty States
+Always provide helpful empty states:
+
+```tsx
+{data.length === 0 ? (
+  <View style={styles.emptyContainer}>
+    <Icon size={48} color="#6b7280" />
+    <Text variant="headlineSmall" style={styles.emptyTitle}>
+      No items found
+    </Text>
+    <Text variant="bodyMedium" style={styles.emptyText}>
+      Add your first item to get started
+    </Text>
+    <Button
+      mode="contained"
+      onPress={() => router.push('/add')}
+      style={styles.emptyAddButton}
+    >
+      Add Item
+    </Button>
+  </View>
+) : (
+  // List content
+)}
+```
+
+## Loading States
+Implement proper loading indicators:
+
+```tsx
+{loading ? (
+  <View style={styles.loadingContainer}>
+    <ActivityIndicator size="large" color="#000000" />
+    <Text variant="bodyMedium" style={styles.loadingText}>
+      Loading...
+    </Text>
+  </View>
+) : (
+  // Content
+)}
+```

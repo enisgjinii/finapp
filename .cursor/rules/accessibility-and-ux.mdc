@@ -1,0 +1,59 @@
+---
+globs: *.tsx
+description: Accessibility and UX best practices
+---
+
+# Accessibility and UX
+
+## Touch Targets
+- Minimum touch target size: 44x44 points
+- Use `TouchableOpacity` with `activeOpacity={0.7}` for visual feedback
+- Provide adequate spacing between interactive elements
+
+## Visual Feedback
+- Use consistent `activeOpacity` values
+- Implement proper loading states with `ActivityIndicator`
+- Show clear error states with helpful messages
+- Use color changes for interactive states
+
+## Text Accessibility
+- Use semantic text variants: `variant="headlineLarge"`, `variant="bodyMedium"`
+- Ensure sufficient color contrast
+- Use `numberOfLines` and `ellipsizeMode` for text truncation
+- Provide descriptive text for icons and buttons
+
+## Navigation UX
+- Use consistent navigation patterns with `router.push()`
+- Provide clear back navigation
+- Use proper screen titles and headers
+- Implement breadcrumbs where appropriate
+
+## Form UX
+- Use proper input types and validation
+- Provide clear error messages
+- Use consistent form layouts
+- Implement proper keyboard handling
+
+## Loading and Empty States
+- Always show loading indicators for async operations
+- Provide helpful empty states with clear actions
+- Use skeleton loading for better perceived performance
+- Implement proper error boundaries
+
+## Animation Guidelines
+- Use `Animated` API for smooth transitions
+- Keep animations under 300ms for responsiveness
+- Use `useNativeDriver: true` when possible for performance
+- Provide subtle feedback animations
+
+## Color and Contrast
+- Use high contrast colors for text
+- Ensure interactive elements are clearly distinguishable
+- Use consistent color meanings (red for errors, green for success)
+- Test with accessibility tools
+
+## Screen Reader Support
+- Use proper semantic elements
+- Provide meaningful labels for interactive elements
+- Use `accessibilityLabel` and `accessibilityHint` when needed
+- Test with screen readers

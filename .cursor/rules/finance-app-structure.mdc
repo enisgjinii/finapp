@@ -1,0 +1,42 @@
+---
+alwaysApply: true
+description: Finance app structure and data patterns
+---
+
+# Finance App Structure
+
+## File Organization
+- **Screens**: Located in `app/(tabs)/` for tab navigation
+- **Components**: Shared components in `src/components/`
+- **Hooks**: Custom hooks in `src/hooks/`
+- **Types**: Type definitions in `src/types/`
+- **Utils**: Utility functions in `src/utils/`
+- **Providers**: Context providers in `src/providers/`
+
+## Data Patterns
+- Use custom hooks for data fetching: `useTransactions`, `useAccounts`, `useSavings`, `useInstallments`
+- Implement proper loading states and error handling
+- Use Firestore for data persistence
+- Apply consistent data filtering and sorting patterns
+
+## Transaction Handling
+- Transactions have: `id`, `amount`, `description`, `category`, `date`, `accountId`
+- Use `sheetName` property for account grouping
+- Implement proper date handling with `formatDate` utility
+- Use `formatCurrency` for money display
+
+## Account Management
+- Accounts are grouped by `sheetName` from transactions
+- Calculate balances by summing transaction amounts
+- Display account names consistently across screens
+
+## Savings Goals
+- Track: `currentAmount`, `targetAmount`, `title`, `notes`, `dueDate`
+- Calculate progress percentage: `Math.min(currentAmount / targetAmount, 1)`
+- Handle completed and overdue states
+- Use progress bars for visual representation
+
+## Import/Export
+- Support CSV import/export functionality
+- Handle file attachments and data validation
+- Implement proper error handling for data operations

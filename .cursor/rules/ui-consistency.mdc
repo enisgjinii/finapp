@@ -1,0 +1,59 @@
+---
+alwaysApply: true
+description: UI consistency rules for React Native finance app
+---
+
+# UI Consistency Rules
+
+## Header Structure
+All tab screens should follow this consistent header pattern:
+
+```tsx
+<View style={styles.header}>
+  <View style={styles.headerContent}>
+    <View style={styles.headerLeft}>
+      <Text variant="headlineLarge" style={styles.screenTitle}>
+        Screen Title
+      </Text>
+    </View>
+    <View style={styles.headerActions}>
+      {/* Action buttons */}
+    </View>
+  </View>
+</View>
+```
+
+## Card/Surface Components
+- Use `Surface` components instead of `Card` for consistency
+- Apply consistent styling: `backgroundColor: '#ffffff'`, `borderWidth: 1`, `borderColor: '#e5e7eb'`, `borderRadius: 12`
+- Use `elevation: 0` and `shadowOpacity: 0` for flat design
+- Apply `marginBottom: 12` between cards
+
+## Spacing Standards
+- **Container padding**: 16px horizontal
+- **Card margins**: 12px bottom
+- **Content padding**: 16px for section content
+- **Icon containers**: 36x36px with 10px border radius
+- **Icon backgrounds**: #f9fafb
+
+## Typography
+- **Screen titles**: 24px, fontWeight: '700', letterSpacing: -0.3
+- **Section titles**: 18px, fontWeight: '600'
+- **Item titles**: 14px, fontWeight: '500'
+- **Descriptions**: 12px, color: '#6b7280'
+- **Labels**: 13px, fontWeight: '500', color: '#6b7280'
+
+## Color Palette
+- **Background**: #ffffff
+- **Borders**: #e5e7eb
+- **Primary text**: #000000
+- **Secondary text**: #6b7280
+- **Icon color**: #6b7280
+- **Error/destructive**: #dc2626
+- **Success**: #10b981
+
+## Icon Styling
+- Use Lucide React Native icons
+- Standard size: 20px for most icons
+- Icon containers: 36x36px with #f9fafb background
+- Border radius: 10px for icon containers

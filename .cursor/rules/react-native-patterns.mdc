@@ -1,0 +1,41 @@
+---
+globs: *.tsx,*.ts
+description: React Native and TypeScript patterns for the finance app
+---
+
+# React Native Patterns
+
+## Component Structure
+- Use functional components with TypeScript
+- Import React hooks at the top: `import React, { useState, useMemo, useCallback, useRef } from 'react'`
+- Use `React.JSX.Element` as return type for components
+- Memoize expensive components with `React.memo`
+
+## State Management
+- Use `useState` for local component state
+- Use `useMemo` for expensive calculations and filtering
+- Use `useCallback` for event handlers to prevent unnecessary re-renders
+- Use `useRef` for animations and DOM references
+
+## Styling Patterns
+- Use `StyleSheet.create()` for all styles
+- Group related styles with comments
+- Use consistent naming: `container`, `header`, `content`, `card`, `item`
+- Apply platform-specific styles with `Platform.OS === 'ios'`
+
+## Navigation
+- Use `router.push()` from expo-router for navigation
+- Handle navigation with proper typing: `router.push('/path' as any)` when needed
+- Use `TouchableOpacity` for interactive elements with `activeOpacity={0.7}`
+
+## Performance Optimization
+- Use `FlatList` for large lists instead of `ScrollView`
+- Implement pagination with `displayCount` state
+- Use `keyExtractor` for list items
+- Memoize render functions with `useCallback`
+
+## Error Handling
+- Use `Alert.alert()` for user notifications
+- Implement proper error boundaries
+- Handle loading states with `ActivityIndicator`
+- Provide empty states with helpful messages
