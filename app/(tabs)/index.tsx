@@ -32,11 +32,13 @@ export default function DashboardScreen(): React.JSX.Element {
   const { accounts } = useAccounts();
 
   const years = Array.from(
-    new Set(transactions.map(tx => tx.date.getFullYear()))
+    new Set(transactions
+      .filter(tx => tx.date)
+      .map(tx => (tx.date instanceof Date ? tx.date : new Date(tx.date)).getFullYear()))
   ).sort((a, b) => b - a);
 
   const currentYearTransactions = transactions.filter(
-    tx => tx.date.getFullYear() === selectedYear
+    tx => tx.date && (tx.date instanceof Date ? tx.date : new Date(tx.date)).getFullYear() === selectedYear
   );
 
   const totalIncome = currentYearTransactions
@@ -115,7 +117,7 @@ export default function DashboardScreen(): React.JSX.Element {
               {formatCurrency(totalBalance)}
             </Text>
             <View style={styles.balanceChange}>
-              <TrendingUp size={14} color={theme.colors.onPrimary} />
+              <TrendingUp size={12} color={theme.colors.onPrimary} />
               <Text variant="bodySmall" style={[styles.changeText, { color: theme.colors.onPrimary }]}>
                 +12.5% from last month
               </Text>
@@ -130,7 +132,7 @@ export default function DashboardScreen(): React.JSX.Element {
             onPress={() => router.push('/transactions/add')}
           >
             <View style={[styles.actionIcon, { backgroundColor: theme.colors.primaryContainer }]}>
-              <Plus size={16} color={theme.colors.primary} />
+              <Plus size={14} color={theme.colors.primary} />
             </View>
             <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
               Add
@@ -142,7 +144,7 @@ export default function DashboardScreen(): React.JSX.Element {
             onPress={() => router.push('/accounts/add')}
           >
             <View style={[styles.actionIcon, { backgroundColor: theme.colors.secondaryContainer }]}>
-              <CreditCard size={16} color={theme.colors.secondary} />
+              <CreditCard size={14} color={theme.colors.secondary} />
             </View>
             <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
               Account
@@ -154,7 +156,7 @@ export default function DashboardScreen(): React.JSX.Element {
             onPress={() => router.push('/savings/add')}
           >
             <View style={[styles.actionIcon, { backgroundColor: theme.colors.tertiaryContainer }]}>
-              <Target size={16} color={theme.colors.tertiary} />
+              <Target size={14} color={theme.colors.tertiary} />
             </View>
             <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
               Savings
@@ -166,7 +168,7 @@ export default function DashboardScreen(): React.JSX.Element {
             onPress={() => router.push('/reports')}
           >
             <View style={[styles.actionIcon, { backgroundColor: theme.colors.surfaceVariant }]}>
-              <TrendingUp size={16} color={theme.colors.onSurfaceVariant} />
+              <TrendingUp size={14} color={theme.colors.onSurfaceVariant} />
             </View>
             <Text variant="bodySmall" style={[styles.actionText, { color: theme.colors.onSurface }]}>
               Reports
@@ -197,7 +199,7 @@ export default function DashboardScreen(): React.JSX.Element {
             <View style={styles.overviewGrid}>
               <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
                 <View style={styles.overviewItemHeader}>
-                  <ArrowUpRight size={16} color={theme.colors.primary} />
+                  <ArrowUpRight size={14} color={theme.colors.primary} />
                   <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
                     Income
                   </Text>
@@ -209,7 +211,7 @@ export default function DashboardScreen(): React.JSX.Element {
 
               <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
                 <View style={styles.overviewItemHeader}>
-                  <ArrowDownLeft size={16} color={theme.colors.error} />
+                  <ArrowDownLeft size={14} color={theme.colors.error} />
                   <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
                     Expenses
                   </Text>
@@ -221,7 +223,7 @@ export default function DashboardScreen(): React.JSX.Element {
 
               <View style={[styles.overviewItem, { backgroundColor: theme.colors.surfaceVariant }]}>
                 <View style={styles.overviewItemHeader}>
-                  <TrendingUp size={16} color={netIncome >= 0 ? theme.colors.primary : theme.colors.error} />
+                  <TrendingUp size={14} color={netIncome >= 0 ? theme.colors.primary : theme.colors.error} />
                   <Text variant="bodySmall" style={[styles.overviewLabel, { color: theme.colors.onSurfaceVariant }]}>
                     Net
                   </Text>
@@ -257,7 +259,7 @@ export default function DashboardScreen(): React.JSX.Element {
               <Card.Content style={styles.accountContent}>
                 <View style={styles.accountInfo}>
                   <View style={[styles.accountIcon, { backgroundColor: account.color || theme.colors.primaryContainer }]}>
-                    <Wallet size={16} color={account.color || theme.colors.primary} />
+                    <Wallet size={14} color={account.color || theme.colors.primary} />
                   </View>
                   <View style={styles.accountDetails}>
                     <Text variant="bodyLarge" style={[styles.accountName, { color: theme.colors.onSurface }]}>
@@ -272,7 +274,7 @@ export default function DashboardScreen(): React.JSX.Element {
                   <Text variant="titleMedium" style={[styles.balanceAmount, { color: balance >= 0 ? theme.colors.primary : theme.colors.error }]}>
                     {formatCurrency(balance, account.currency as any)}
                   </Text>
-                  <MoreHorizontal size={14} color={theme.colors.onSurfaceVariant} />
+                  <MoreHorizontal size={12} color={theme.colors.onSurfaceVariant} />
                 </View>
               </Card.Content>
             </Card>
@@ -309,9 +311,9 @@ export default function DashboardScreen(): React.JSX.Element {
                       { backgroundColor: transaction.amount >= 0 ? theme.colors.primaryContainer : theme.colors.errorContainer }
                     ]}>
                       {transaction.amount >= 0 ? (
-                        <ArrowUpRight size={14} color={theme.colors.primary} />
+                        <ArrowUpRight size={12} color={theme.colors.primary} />
                       ) : (
-                        <ArrowDownLeft size={14} color={theme.colors.error} />
+                        <ArrowDownLeft size={12} color={theme.colors.error} />
                       )}
                     </View>
                     <View style={styles.transactionDetails}>
@@ -319,7 +321,7 @@ export default function DashboardScreen(): React.JSX.Element {
                         {transaction.description || 'No description'}
                       </Text>
                       <Text variant="bodySmall" style={[styles.transactionMeta, { color: theme.colors.onSurfaceVariant }]}>
-                        {transaction.date.toLocaleDateString()} • {account?.name || 'Unknown Account'}
+                        {transaction.date ? (transaction.date instanceof Date ? transaction.date : new Date(transaction.date)).toLocaleDateString() : 'Invalid Date'} • {account?.name || 'Unknown Account'}
                       </Text>
                     </View>
                   </View>
@@ -352,9 +354,9 @@ const styles = StyleSheet.create({
   
   // Compact Header Styles
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 16,
-    paddingBottom: 16,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   headerTop: {
     flexDirection: 'row',
@@ -367,21 +369,21 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   greeting: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '400',
     opacity: 0.8,
-    marginBottom: 2,
+    marginBottom: 1,
   },
   userName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
   dateText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
   },
   notificationButton: {
@@ -390,46 +392,46 @@ const styles = StyleSheet.create({
 
   // Compact Balance Card Styles
   balanceCard: {
-    marginHorizontal: 20,
-    marginBottom: 16,
-    borderRadius: 16,
-    elevation: 3,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
   },
   balanceContent: {
-    paddingVertical: 18,
-    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
   },
   balanceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   balanceLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
     opacity: 0.9,
   },
   currencyChip: {
-    height: 24,
+    height: 20,
   },
   totalBalance: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: -0.8,
-    marginBottom: 6,
+    letterSpacing: -0.6,
+    marginBottom: 4,
   },
   balanceChange: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 3,
   },
   changeText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     opacity: 0.9,
   },
@@ -437,59 +439,59 @@ const styles = StyleSheet.create({
   // Compact Quick Actions Styles
   quickActions: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    marginBottom: 16,
-    gap: 8,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    gap: 6,
   },
   actionButton: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 10,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowRadius: 2,
   },
   actionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   actionText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     textAlign: 'center',
   },
 
   // Compact Overview Styles
   overviewCard: {
-    marginHorizontal: 20,
-    marginBottom: 16,
-    borderRadius: 16,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowRadius: 2,
   },
   overviewContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
   overviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   overviewTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   yearSelector: {
@@ -497,30 +499,30 @@ const styles = StyleSheet.create({
   },
   overviewGrid: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   overviewItem: {
     flex: 1,
-    padding: 12,
-    borderRadius: 12,
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'flex-start',
   },
   overviewItemHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginBottom: 8,
+    gap: 4,
+    marginBottom: 6,
   },
   overviewLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '500',
     textTransform: 'uppercase',
-    letterSpacing: 0.3,
+    letterSpacing: 0.2,
   },
   overviewAmount: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
 
   // Compact Section Headers
@@ -528,42 +530,42 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 12,
+    paddingHorizontal: 16,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
   seeAllText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
   },
 
   // Compact Account Cards
   accountCard: {
-    marginHorizontal: 20,
-    marginBottom: 8,
-    borderRadius: 12,
+    marginHorizontal: 16,
+    marginBottom: 6,
+    borderRadius: 10,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowRadius: 2,
   },
   accountContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
   },
   accountInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   accountIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -571,58 +573,58 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   accountName: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     marginBottom: 1,
   },
   accountCurrency: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     opacity: 0.7,
   },
   accountBalance: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   balanceAmount: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '700',
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
 
   // Compact Transactions
   transactionsCard: {
-    marginHorizontal: 20,
-    marginBottom: 16,
-    borderRadius: 16,
+    marginHorizontal: 16,
+    marginBottom: 12,
+    borderRadius: 12,
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowRadius: 2,
   },
   transactionsContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
   },
   transactionItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderBottomWidth: 1,
   },
   transactionLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 10,
+    gap: 8,
   },
   transactionIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -630,24 +632,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   transactionDescription: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '500',
     marginBottom: 1,
   },
   transactionMeta: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '400',
     opacity: 0.7,
   },
   transactionAmount: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
-    letterSpacing: -0.2,
+    letterSpacing: -0.1,
   },
 
 
   // Compact Bottom Spacer
   bottomSpacer: {
-    height: 20,
+    height: 16,
   },
 });

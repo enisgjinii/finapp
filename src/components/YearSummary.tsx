@@ -19,7 +19,7 @@ export const YearSummary: React.FC<YearSummaryProps> = ({
   const { formatCurrency } = useCurrency();
 
   const yearTransactions = transactions.filter(
-    tx => tx.date.getFullYear() === year
+    tx => tx.date && (tx.date instanceof Date ? tx.date : new Date(tx.date)).getFullYear() === year
   );
 
   const income = yearTransactions

@@ -15,7 +15,8 @@ export default function ReportsScreen(): React.JSX.Element {
   const getFilteredTransactions = () => {
     const now = new Date();
     const filtered = transactions.filter(tx => {
-      const txDate = new Date(tx.date);
+      if (!tx.date) return false;
+      const txDate = tx.date instanceof Date ? tx.date : new Date(tx.date);
       switch (selectedPeriod) {
         case 'week':
           const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);

@@ -9,6 +9,8 @@ import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
 import { Transaction } from '../../src/types';
+import { AttachmentSection } from '../../src/components/AttachmentSection';
+import { AttachmentUpload } from '../../src/services/storage';
 
 const schema = yup.object().shape({
   description: yup.string().max(200, 'Description too long'),
@@ -22,6 +24,7 @@ const schema = yup.object().shape({
 
 export default function AddTransactionScreen(): React.JSX.Element {
   const [transactionType, setTransactionType] = useState('expense');
+  const [attachments, setAttachments] = useState<AttachmentUpload[]>([]);
   const { createTransaction } = useTransactions();
   const { accounts } = useAccounts();
 
@@ -47,10 +50,12 @@ export default function AddTransactionScreen(): React.JSX.Element {
         date: new Date(),
         source: 'manual',
         tags: data.category ? [data.category] : [],
+        attachments: attachments.length > 0 ? attachments : undefined,
       } as Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'>);
 
       Alert.alert('Success', 'Transaction added successfully');
       reset();
+      setAttachments([]);
       router.back();
     } catch (error) {
       Alert.alert('Error', 'Failed to add transaction');
@@ -144,18 +149,24 @@ export default function AddTransactionScreen(): React.JSX.Element {
               </View>
             )}
           />
-
-          <Button
-            mode="contained"
-            onPress={handleSubmit(onSubmit)}
-            loading={createTransaction.isPending}
-            disabled={createTransaction.isPending}
-            style={styles.submitButton}
-          >
-            Add Transaction
-          </Button>
         </Card.Content>
       </Card>
+
+      <AttachmentSection
+        attachments={attachments}
+        onAttachmentsChange={setAttachments}
+        disabled={createTransaction.isPending}
+      />
+
+      <Button
+        mode="contained"
+        onPress={handleSubmit(onSubmit)}
+        loading={createTransaction.isPending}
+        disabled={createTransaction.isPending}
+        style={styles.submitButton}
+      >
+        Add Transaction
+      </Button>
     </ScrollView>
   );
 }

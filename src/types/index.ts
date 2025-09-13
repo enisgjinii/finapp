@@ -20,6 +20,16 @@ export interface Transaction {
   tags?: string[];
   savingsAlloc?: number;
   attachmentUrl?: string;
+  attachments?: Array<{
+    id: string;              // uuid
+    name: string;            // original filename
+    mimeType: string;
+    size?: number;           // bytes
+    storagePath: string;     // e.g. users/{uid}/transactions/{txId}/attachments/{uuid}
+    downloadURL: string;
+    createdAt: number;       // Date.now()
+  }>;
+  importSessionId?: string;  // link to an import batch
   source?: 'manual' | 'import' | 'installment' | 'transfer';
   transferId?: string;
   createdAt: Date;
@@ -53,15 +63,20 @@ export interface SavingsGoal {
 
 export interface ImportSession {
   id: string;
-  fileName: string;
+  filename: string;
+  rowCount: number;
+  importedCount: number;
+  skippedCount: number;
+  createdAt: number;
   mapping: {
     dateKey: string;
     amountKey: string;
     descKey: string;
     accountKey?: string;
+    categoryKey?: string;
+    typeKey?: string;
   };
-  rowCount: number;
-  createdAt: Date;
+  sampleRows: Array<Record<string, any>>;
 }
 
 export interface UserProfile {

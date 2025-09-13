@@ -1,0 +1,11 @@
+date,amount,description,account,category,type
+2024-01-15,-25.50,Grocery Store,Main Account,Food,expense
+2024-01-16,-12.00,Coffee Shop,Main Account,Food,expense
+2024-01-17,1500.00,Salary,Main Account,Income,income
+2024-01-18,-45.00,Gas Station,Main Account,Transportation,expense
+2024-01-19,-89.99,Online Shopping,Main Account,Shopping,expense
+2024-01-20,-15.75,Restaurant,Main Account,Food,expense
+2024-01-21,200.00,Freelance Work,Main Account,Income,income
+2024-01-22,-35.00,Utilities,Main Account,Bills,expense
+2024-01-23,-22.50,Pharmacy,Main Account,Healthcare,expense
+2024-01-24,-8.99,Streaming Service,Main Account,Entertainment,expense

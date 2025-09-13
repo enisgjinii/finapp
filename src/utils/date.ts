@@ -1,11 +1,17 @@
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear, addMonths } from 'date-fns';
 
-export const formatDate = (date: Date): string => {
-  return format(date, 'MMM dd, yyyy');
+export const formatDate = (date: Date | undefined | null): string => {
+  if (!date) return 'Invalid Date';
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return 'Invalid Date';
+  return format(dateObj, 'MMM dd, yyyy');
 };
 
-export const formatShortDate = (date: Date): string => {
-  return format(date, 'MMM dd');
+export const formatShortDate = (date: Date | undefined | null): string => {
+  if (!date) return '--';
+  const dateObj = date instanceof Date ? date : new Date(date);
+  if (isNaN(dateObj.getTime())) return '--';
+  return format(dateObj, 'MMM dd');
 };
 
 export const getMonthRange = (year: number, month: number) => {
@@ -24,6 +30,9 @@ export const getYearRange = (year: number) => {
   };
 };
 
-export const getNextDueDate = (lastDueDate: Date): Date => {
-  return addMonths(lastDueDate, 1);
+export const getNextDueDate = (lastDueDate: Date | undefined | null): Date => {
+  if (!lastDueDate) return new Date();
+  const dateObj = lastDueDate instanceof Date ? lastDueDate : new Date(lastDueDate);
+  if (isNaN(dateObj.getTime())) return new Date();
+  return addMonths(dateObj, 1);
 };
