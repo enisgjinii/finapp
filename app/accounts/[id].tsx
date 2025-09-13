@@ -56,7 +56,7 @@ export default function AccountDetailsScreen(): React.JSX.Element {
             styles.transactionAmount,
             { color: item.amount >= 0 ? theme.colors.primary : theme.colors.error }
           ]}>
-            {item.amount >= 0 ? '+' : ''}${Math.abs(item.amount).toFixed(2)}
+            {item.amount >= 0 ? '' : '-'}${Math.abs(item.amount).toFixed(2)}
           </Text>
         </View>
       </Card.Content>

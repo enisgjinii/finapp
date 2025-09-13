@@ -126,7 +126,7 @@ export const CurrencyProvider: React.FC<CurrencyProviderProps> = ({ children }) 
 
   const formatAmount = (amount: number, currency: Currency = primaryCurrency): string => {
     const absAmount = Math.abs(amount);
-    const sign = amount >= 0 ? '+' : '-';
+    const sign = amount >= 0 ? '' : '-';
     return `${sign}${formatCurrency(absAmount, currency)}`;
   };
 

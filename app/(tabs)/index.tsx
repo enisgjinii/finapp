@@ -329,7 +329,7 @@ export default function DashboardScreen(): React.JSX.Element {
                     styles.transactionAmount,
                     { color: transaction.amount >= 0 ? theme.colors.primary : theme.colors.error }
                   ]}>
-                    {transaction.amount >= 0 ? '+' : ''}{formatCurrency(Math.abs(transaction.amount), account?.currency as any)}
+                    {transaction.amount >= 0 ? '' : '-'}{formatCurrency(Math.abs(transaction.amount), account?.currency as any)}
                   </Text>
                 </TouchableOpacity>
               );

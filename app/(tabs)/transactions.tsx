@@ -51,7 +51,6 @@ import {
   PieChart,
   BarChart3
 } from 'lucide-react-native';
-import { ImportWizard } from '../../src/components/ImportWizard';
 import { Transaction } from '../../src/types';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -75,7 +74,7 @@ const TransactionItem = React.memo<{
   theme: any;
 }>(({ transaction, account, onPress, theme }) => {
   const isIncome = transaction.amount > 0;
-  const amountColor = isIncome ? theme.colors.primary : theme.colors.error;
+  const amountColor = isIncome ? '#000000' : '#dc2626'; // Black for income, red for expenses
   
   const getTransactionIcon = () => {
     if (transaction.source === 'installment') return 'credit-card';
@@ -96,70 +95,63 @@ const TransactionItem = React.memo<{
 
   return (
     <TouchableOpacity
-      style={[styles.transactionItem, {
-        backgroundColor: theme.colors.surface,
-        borderColor: theme.colors.outline + '20'
-      }]}
+      style={styles.transactionItem}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.transactionContent}>
         <View style={[styles.transactionIcon, {
-          backgroundColor: isIncome 
-            ? theme.colors.primaryContainer 
-            : theme.colors.errorContainer
+          backgroundColor: '#f9fafb'
         }]}>
           {isIncome ? (
-            <TrendingUp size={18} color={theme.colors.primary} />
+            <TrendingUp size={18} color="#000000" />
           ) : (
-            <TrendingDown size={18} color={theme.colors.error} />
+            <TrendingDown size={18} color="#dc2626" />
           )}
         </View>
-        
+
         <View style={styles.transactionDetails}>
-          <Text 
-            variant="bodyMedium" 
-            style={[styles.transactionTitle, { color: theme.colors.onSurface }]}
+          <Text
+            variant="bodyMedium"
+            style={styles.transactionTitle}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
             {transaction.description || transaction.category || 'Transaction'}
           </Text>
-          
+
           <View style={styles.transactionMeta}>
-            <Text 
-              variant="bodySmall" 
-              style={[styles.transactionDate, { color: theme.colors.onSurfaceVariant }]}
+            <Text
+              variant="bodySmall"
+              style={styles.transactionDate}
             >
               {formatDate(transaction.date)}
             </Text>
             {account && (
-              <Text 
-                variant="bodySmall" 
-                style={[styles.transactionAccount, { color: theme.colors.onSurfaceVariant }]}
+              <Text
+                variant="bodySmall"
+                style={styles.transactionAccount}
               >
                 • {account.name}
               </Text>
             )}
           </View>
-          
+
           {transaction.category && (
-            <Chip
-              style={[styles.categoryChip, { backgroundColor: theme.colors.surfaceVariant }]}
-              textStyle={{ fontSize: 11, color: theme.colors.onSurfaceVariant }}
-              compact
-            >
-              {transaction.category}
-            </Chip>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryBadgeText}>
+                {transaction.category}
+              </Text>
+            </View>
           )}
         </View>
-        
+
         <View style={styles.transactionAmount}>
-          <Text 
-            variant="titleMedium" 
+          <Text
+            variant="titleMedium"
             style={[styles.amountText, { color: amountColor }]}
           >
-            {isIncome ? '+' : ''}{formatCurrency(transaction.amount)}
+            {isIncome ? '' : '-'}{formatCurrency(Math.abs(transaction.amount))}
           </Text>
         </View>
       </View>
@@ -176,20 +168,20 @@ const SummaryCard = React.memo<{
   theme: any;
   subtitle?: string;
 }>(({ title, value, icon, color, theme, subtitle }) => (
-  <Surface style={[styles.summaryCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
+  <Surface style={styles.summaryCard} elevation={1}>
     <View style={styles.summaryContent}>
-      <View style={[styles.summaryIcon, { backgroundColor: color + '15' }]}>
+      <View style={styles.summaryIcon}>
         {icon}
       </View>
       <View style={styles.summaryText}>
-        <Text variant="bodySmall" style={[styles.summaryLabel, { color: theme.colors.onSurfaceVariant }]}>
+        <Text variant="bodySmall" style={styles.summaryLabel}>
           {title}
         </Text>
-        <Text variant="headlineSmall" style={[styles.summaryValue, { color: theme.colors.onSurface }]}>
+        <Text variant="headlineSmall" style={styles.summaryValue}>
           {value}
         </Text>
         {subtitle && (
-          <Text variant="bodySmall" style={[styles.summarySubtitle, { color: theme.colors.onSurfaceVariant }]}>
+          <Text variant="bodySmall" style={styles.summarySubtitle}>
             {subtitle}
           </Text>
         )}
@@ -206,7 +198,6 @@ export default function TransactionsScreen(): React.JSX.Element {
   const { savings } = useSavings();
 
   // State management
-  const [importWizardVisible, setImportWizardVisible] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [displayCount, setDisplayCount] = useState(50);
@@ -242,7 +233,7 @@ export default function TransactionsScreen(): React.JSX.Element {
         const accountName = accounts.find(a => a.id === tx.accountId)?.name;
         
         return tx.description?.toLowerCase().includes(searchLower) ||
-               tx.category?.toLowerCase().includes(searchLower) ||
+        tx.category?.toLowerCase().includes(searchLower) ||
                tx.amount.toString().includes(searchLower) ||
                sheetName?.toLowerCase().includes(searchLower) ||
                accountName?.toLowerCase().includes(searchLower);
@@ -435,8 +426,8 @@ export default function TransactionsScreen(): React.JSX.Element {
     const accountName = (transaction as any).sheetName || 
                        accounts.find(a => a.id === transaction.accountId)?.name || 
                        'Unknown Account';
-    
-    return (
+
+  return (
       <TransactionItem
         transaction={transaction}
         account={{ name: accountName }}
@@ -460,85 +451,85 @@ export default function TransactionsScreen(): React.JSX.Element {
         }
       ]}
     >
-      <Surface style={[styles.filtersCard, { backgroundColor: theme.colors.surface }]} elevation={2}>
+      <Surface style={styles.filtersCard} elevation={2}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.filtersContent}>
-            <Text variant="titleMedium" style={[styles.filtersTitle, { color: theme.colors.onSurface }]}>
+              <Text variant="titleMedium" style={styles.filtersTitle}>
               Filters & Sorting
-            </Text>
+              </Text>
 
             {/* Type Filter */}
             <View style={styles.filterSection}>
-              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurfaceVariant }]}>
+                <Text variant="bodyMedium" style={styles.filterLabel}>
                 Transaction Type
-              </Text>
+                </Text>
               <View style={styles.chipRow}>
-                {(['all', 'income', 'expense'] as const).map((type) => (
-                  <Chip
-                    key={type}
-                    selected={filters.type === type}
-                    onPress={() => handleFilterChange('type', type)}
-                    style={styles.filterChip}
+                  {(['all', 'income', 'expense'] as const).map((type) => (
+                    <Chip
+                      key={type}
+                      selected={filters.type === type}
+                      onPress={() => handleFilterChange('type', type)}
+                      style={styles.filterChip}
                     mode={filters.type === type ? 'flat' : 'outlined'}
-                  >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </Chip>
-                ))}
+                    >
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                    </Chip>
+                  ))}
+                </View>
               </View>
-            </View>
 
             {/* Account Filter */}
             <View style={styles.filterSection}>
-              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurfaceVariant }]}>
+                <Text variant="bodyMedium" style={styles.filterLabel}>
                 Account
-              </Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.accountScroll}>
-                <Chip
-                  selected={filters.account === 'all'}
-                  onPress={() => handleFilterChange('account', 'all')}
-                  style={styles.filterChip}
-                  mode={filters.account === 'all' ? 'flat' : 'outlined'}
-                >
-                  All Accounts
-                </Chip>
-                {accountNames.map((accountName) => (
+                </Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.accountScroll}>
                   <Chip
+                    selected={filters.account === 'all'}
+                    onPress={() => handleFilterChange('account', 'all')}
+                    style={styles.filterChip}
+                  mode={filters.account === 'all' ? 'flat' : 'outlined'}
+                  >
+                    All Accounts
+                  </Chip>
+                {accountNames.map((accountName) => (
+                    <Chip
                     key={accountName}
                     selected={filters.account === accountName}
                     onPress={() => handleFilterChange('account', accountName)}
-                    style={styles.filterChip}
+                      style={styles.filterChip}
                     mode={filters.account === accountName ? 'flat' : 'outlined'}
-                  >
+                    >
                     {accountName}
-                  </Chip>
-                ))}
-              </ScrollView>
-            </View>
+                    </Chip>
+                  ))}
+                </ScrollView>
+              </View>
 
             {/* Date Range Filter */}
             <View style={styles.filterSection}>
-              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurfaceVariant }]}>
+                <Text variant="bodyMedium" style={styles.filterLabel}>
                 Date Range
-              </Text>
+                </Text>
               <View style={styles.chipRow}>
-                {(['all', 'week', 'month', 'year'] as const).map((range) => (
-                  <Chip
-                    key={range}
-                    selected={filters.dateRange === range}
-                    onPress={() => handleFilterChange('dateRange', range)}
-                    style={styles.filterChip}
+                  {(['all', 'week', 'month', 'year'] as const).map((range) => (
+                    <Chip
+                      key={range}
+                      selected={filters.dateRange === range}
+                      onPress={() => handleFilterChange('dateRange', range)}
+                      style={styles.filterChip}
                     mode={filters.dateRange === range ? 'flat' : 'outlined'}
-                  >
-                    {range.charAt(0).toUpperCase() + range.slice(1)}
-                  </Chip>
-                ))}
+                    >
+                      {range.charAt(0).toUpperCase() + range.slice(1)}
+                    </Chip>
+                  ))}
+                </View>
               </View>
-            </View>
 
             {/* Category Filter */}
             {categories.length > 0 && (
               <View style={styles.filterSection}>
-                <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurfaceVariant }]}>
+                <Text variant="bodyMedium" style={styles.filterLabel}>
                   Category
                 </Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll}>
@@ -567,7 +558,7 @@ export default function TransactionsScreen(): React.JSX.Element {
 
             {/* Sort Options */}
             <View style={styles.filterSection}>
-              <Text variant="bodyMedium" style={[styles.filterLabel, { color: theme.colors.onSurfaceVariant }]}>
+              <Text variant="bodyMedium" style={styles.filterLabel}>
                 Sort By
               </Text>
               <View style={styles.sortRow}>
@@ -601,16 +592,16 @@ export default function TransactionsScreen(): React.JSX.Element {
                 icon="refresh"
               >
                 Reset
-              </Button>
+                </Button>
               <Button 
                 mode="contained" 
                 onPress={toggleFilters}
                 style={styles.applyButton}
               >
-                Apply
-              </Button>
-            </View>
-          </View>
+                  Apply
+                </Button>
+              </View>
+      </View>
         </ScrollView>
       </Surface>
     </Animated.View>
@@ -619,37 +610,24 @@ export default function TransactionsScreen(): React.JSX.Element {
   // Error state - removed since error is not available from useTransactions hook
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: '#ffffff' }]}>
       {/* Enhanced Header */}
       <Animated.View style={[styles.header, { transform: [{ scale: headerAnimation }] }]}>
         <View style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Text variant="headlineLarge" style={[styles.screenTitle, { color: theme.colors.onBackground }]}>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
               Transactions
-            </Text>
-            <View style={styles.headerStats}>
-              <Badge style={[styles.badge, { backgroundColor: theme.colors.primaryContainer }]}>
-                {summaryStats.transactionCount}
-              </Badge>
-              <Text variant="bodySmall" style={[styles.transactionCount, { color: theme.colors.onSurfaceVariant }]}>
-                transactions
-              </Text>
-            </View>
+                </Text>
           </View>
-          
+
           <View style={styles.headerActions}>
             <IconButton
-              icon={() => <Filter size={24} color={theme.colors.onBackground} />}
+              icon={() => <Filter size={24} color="#6b7280" />}
               size={24}
               onPress={toggleFilters}
-              style={[showFilters && styles.activeFilterButton, { backgroundColor: showFilters ? theme.colors.primaryContainer : 'transparent' }]}
+              style={[showFilters && styles.activeFilterButton, { backgroundColor: showFilters ? '#f9fafb' : 'transparent' }]}
             />
-            <IconButton
-              icon={() => <Upload size={24} color={theme.colors.onBackground} />}
-              size={24}
-              onPress={() => setImportWizardVisible(true)}
-            />
-          </View>
+              </View>
         </View>
       </Animated.View>
 
@@ -659,10 +637,10 @@ export default function TransactionsScreen(): React.JSX.Element {
           placeholder="Search transactions, accounts, categories..."
           onChangeText={(text) => handleFilterChange('search', text)}
           value={filters.search}
-          style={[styles.searchbar, { backgroundColor: theme.colors.surface }]}
-          inputStyle={{ color: theme.colors.onSurface }}
-          placeholderTextColor={theme.colors.onSurfaceVariant}
-          icon={() => <Search size={20} color={theme.colors.onSurfaceVariant} />}
+          style={styles.searchbar}
+          inputStyle={{ color: '#000000' }}
+          placeholderTextColor="#6b7280"
+          icon={() => <Search size={20} color="#6b7280" />}
         />
       </View>
 
@@ -676,8 +654,8 @@ export default function TransactionsScreen(): React.JSX.Element {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={handleRefresh}
-            colors={[theme.colors.primary]}
-            tintColor={theme.colors.primary}
+            colors={['#000000']}
+            tintColor="#000000"
           />
         }
       >
@@ -686,20 +664,20 @@ export default function TransactionsScreen(): React.JSX.Element {
           <SummaryCard
             title="Total Balance"
             value={formatCurrency(totalBalance)}
-            icon={<Wallet size={20} color={theme.colors.primary} />}
-            color={theme.colors.primary}
+            icon={<Wallet size={20} color="#000000" />}
+            color="#000000"
             theme={theme}
             subtitle={`${accounts.length} accounts`}
           />
-          
+
           <SummaryCard
             title="Net This Period"
             value={formatCurrency(summaryStats.netAmount)}
-            icon={summaryStats.netAmount >= 0 ? 
-              <TrendingUp size={20} color={theme.colors.primary} /> : 
-              <TrendingDown size={20} color={theme.colors.error} />
+            icon={summaryStats.netAmount >= 0 ?
+              <TrendingUp size={20} color="#000000" /> :
+              <TrendingDown size={20} color="#dc2626" />
             }
-            color={summaryStats.netAmount >= 0 ? theme.colors.primary : theme.colors.error}
+            color={summaryStats.netAmount >= 0 ? '#000000' : '#dc2626'}
             theme={theme}
             subtitle={`${summaryStats.transactionCount} transactions`}
           />
@@ -707,23 +685,23 @@ export default function TransactionsScreen(): React.JSX.Element {
 
         {/* Quick Stats */}
         <View style={styles.quickStats}>
-          <Surface style={[styles.statCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
+          <Surface style={styles.statCard} elevation={1}>
             <View style={styles.statContent}>
-              <Text variant="bodySmall" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+              <Text variant="bodySmall" style={styles.statLabel}>
                 Income
-              </Text>
-              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.primary }]}>
+                </Text>
+              <Text variant="titleMedium" style={[styles.statValue, { color: '#000000' }]}>
                 {formatCurrency(summaryStats.totalIncome)}
-              </Text>
-            </View>
+                </Text>
+              </View>
           </Surface>
-          
-          <Surface style={[styles.statCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
+
+          <Surface style={styles.statCard} elevation={1}>
             <View style={styles.statContent}>
-              <Text variant="bodySmall" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+              <Text variant="bodySmall" style={styles.statLabel}>
                 Expenses
               </Text>
-              <Text variant="titleMedium" style={[styles.statValue, { color: theme.colors.error }]}>
+              <Text variant="titleMedium" style={[styles.statValue, { color: '#dc2626' }]}>
                 {formatCurrency(summaryStats.totalExpenses)}
               </Text>
             </View>
@@ -731,50 +709,48 @@ export default function TransactionsScreen(): React.JSX.Element {
         </View>
 
         {/* Transactions List */}
-        <Surface style={[styles.transactionsCard, { backgroundColor: theme.colors.surface }]} elevation={1}>
-          <View style={styles.transactionsHeader}>
-            <Text variant="titleLarge" style={[styles.transactionsTitle, { color: theme.colors.onSurface }]}>
+        <Surface style={styles.transactionsCard} elevation={1}>
+            <View style={styles.transactionsHeader}>
+              <Text variant="titleLarge" style={styles.transactionsTitle}>
               Recent Transactions
-            </Text>
-              <TouchableOpacity 
+              </Text>
+              <TouchableOpacity
               onPress={() => router.push('/transactions/add')}
-              style={[styles.addButton, { backgroundColor: theme.colors.primaryContainer }]}
+              style={styles.addButton}
             >
-              <Plus size={18} color={theme.colors.primary} />
-            </TouchableOpacity>
-          </View>
-          
-          <Divider />
-
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={theme.colors.primary} />
-              <Text variant="bodyMedium" style={[styles.loadingText, { color: theme.colors.onSurfaceVariant }]}>
-                Loading transactions...
-              </Text>
+              <Plus size={18} color="#000000" />
+              </TouchableOpacity>
             </View>
-          ) : displayedTransactions.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Receipt size={48} color={theme.colors.onSurfaceVariant} />
-              <Text variant="headlineSmall" style={[styles.emptyTitle, { color: theme.colors.onSurface }]}>
-                No transactions found
-              </Text>
-              <Text variant="bodyMedium" style={[styles.emptyText, { color: theme.colors.onSurfaceVariant }]}>
-                {filteredTransactions.length === 0 && allTransactions.length > 0
+
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#000000" />
+                <Text variant="bodyMedium" style={styles.loadingText}>
+                  Loading transactions...
+                </Text>
+              </View>
+            ) : displayedTransactions.length === 0 ? (
+              <View style={styles.emptyContainer}>
+                <Receipt size={48} color="#6b7280" />
+                <Text variant="headlineSmall" style={styles.emptyTitle}>
+                  No transactions found
+                </Text>
+                <Text variant="bodyMedium" style={styles.emptyText}>
+                  {filteredTransactions.length === 0 && allTransactions.length > 0
                   ? 'Try adjusting your filters to see more results'
-                  : 'Add your first transaction to get started'
-                }
-              </Text>
-              <Button
-                mode="contained"
-                onPress={() => router.push('/transactions/add')}
+                    : 'Add your first transaction to get started'
+                  }
+                </Text>
+                <Button
+                  mode="contained"
+                  onPress={() => router.push('/transactions/add')}
                 style={styles.emptyAddButton}
                 icon="plus"
-              >
-                Add Transaction
-              </Button>
-            </View>
-          ) : (
+                >
+                  Add Transaction
+                </Button>
+              </View>
+            ) : (
             <View style={styles.transactionsList}>
               {displayedTransactions.map((transaction) => (
                 <TransactionItem
@@ -787,27 +763,21 @@ export default function TransactionsScreen(): React.JSX.Element {
               ))}
               
               {displayedTransactions.length < filteredTransactions.length && (
-                <View style={styles.loadMoreContainer}>
-                  <Button
-                    mode="outlined"
-                    onPress={handleLoadMore}
-                    style={styles.loadMoreButton}
+                    <View style={styles.loadMoreContainer}>
+                      <Button
+                        mode="outlined"
+                        onPress={handleLoadMore}
+                        style={styles.loadMoreButton}
                     icon="chevron-down"
-                  >
-                    Load More ({filteredTransactions.length - displayedTransactions.length} remaining)
-                  </Button>
-                </View>
-              )}
-            </View>
+                      >
+                        Load More ({filteredTransactions.length - displayedTransactions.length} remaining)
+                      </Button>
+                    </View>
+            )}
+      </View>
           )}
         </Surface>
       </ScrollView>
-
-
-      <ImportWizard
-        visible={importWizardVisible}
-        onClose={() => setImportWizardVisible(false)}
-      />
     </View>
   );
 }
@@ -815,6 +785,7 @@ export default function TransactionsScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
   },
   centerContent: {
     justifyContent: 'center',
@@ -822,7 +793,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 20 : 15,
     paddingBottom: 12,
     paddingHorizontal: 16,
   },
@@ -838,21 +810,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     letterSpacing: -0.3,
-    marginBottom: 4,
-  },
-  headerStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-  },
-  transactionCount: {
-    fontSize: 12,
-    opacity: 0.7,
+    marginBottom: 0,
   },
   headerActions: {
     flexDirection: 'row',
@@ -867,6 +825,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   searchbar: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
@@ -877,6 +838,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   filtersCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
@@ -939,6 +903,9 @@ const styles = StyleSheet.create({
   },
   summaryCard: {
     flex: 1,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
@@ -982,6 +949,9 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
@@ -1000,6 +970,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   transactionsCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
@@ -1018,7 +991,10 @@ const styles = StyleSheet.create({
   addButton: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1027,8 +1003,10 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   transactionItem: {
-    borderRadius: 10,
+    backgroundColor: '#ffffff',
     borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 10,
     marginBottom: 8,
     elevation: 0,
     shadowOpacity: 0,
@@ -1065,9 +1043,20 @@ const styles = StyleSheet.create({
   transactionAccount: {
     fontSize: 11,
   },
-  categoryChip: {
+  categoryBadge: {
+    backgroundColor: '#f9fafb',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
     alignSelf: 'flex-start',
-    height: 20,
+    marginTop: 4,
+  },
+  categoryBadgeText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#6b7280',
   },
   transactionAmount: {
     alignItems: 'flex-end',

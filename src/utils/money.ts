@@ -16,7 +16,7 @@ export const formatCurrency = (amount: number, currency: string = 'EUR'): string
 
 export const formatAmount = (amount: number, currency: string = 'EUR'): string => {
   const absAmount = Math.abs(amount);
-  const sign = amount >= 0 ? '+' : '-';
+  const sign = amount >= 0 ? '' : '-';
   return `${sign}${formatCurrency(absAmount, currency)}`;
 };
 
