@@ -22,7 +22,7 @@ import {
 import { router, usePathname } from 'expo-router';
 
 const { width: screenWidth } = Dimensions.get('window');
-const DRAWER_WIDTH = 280;
+const DRAWER_WIDTH = 240;
 
 interface DrawerItemProps {
   label: string;
@@ -46,7 +46,7 @@ const DrawerItem: React.FC<DrawerItemProps> = ({ label, icon: Icon, onPress, isA
     >
       <Icon
         color={isActive ? theme.colors.primary : theme.colors.onSurfaceVariant}
-        size={20}
+        size={18}
       />
       <Text
         style={[
@@ -126,16 +126,16 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
   return (
     <View style={styles.container}>
       {/* Header with Menu Button */}
-      <View style={[styles.header, { 
+      <View style={[styles.header, {
         backgroundColor: theme.colors.primary,
-        paddingTop: insets.top + 12
+        paddingTop: insets.top + 8
       }]}>
         <TouchableOpacity onPress={toggleDrawer} style={styles.menuButton}>
-          <Menu color={theme.colors.onPrimary} size={24} />
+          <Menu color={theme.colors.onPrimary} size={20} />
         </TouchableOpacity>
         <Text
-          variant="titleLarge"
-          style={[styles.headerTitle, { color: theme.colors.onPrimary }]}
+          variant="titleMedium"
+          style={[styles.headerTitle, { color: theme.colors.onPrimary, fontSize: 18 }]}
         >
           FinApp
         </Text>
@@ -167,28 +167,28 @@ export const DrawerLayout: React.FC<DrawerLayoutProps> = ({ children }) => {
         ]}
       >
         {/* User Profile Section */}
-        <View style={[styles.userSection, { 
+        <View style={[styles.userSection, {
           backgroundColor: theme.colors.primaryContainer,
-          paddingTop: insets.top + 20
+          paddingTop: insets.top + 16
         }]}>
-          <TouchableOpacity onPress={closeDrawer} style={[styles.closeButton, { top: insets.top + 16 }]}>
-            <X color={theme.colors.onPrimaryContainer} size={24} />
+          <TouchableOpacity onPress={closeDrawer} style={[styles.closeButton, { top: insets.top + 12 }]}>
+            <X color={theme.colors.onPrimaryContainer} size={20} />
           </TouchableOpacity>
           <Avatar.Text
-            size={60}
+            size={40}
             label={user?.email?.charAt(0).toUpperCase() || 'U'}
             style={{ backgroundColor: theme.colors.primary }}
           />
           <View style={styles.userInfo}>
             <Text
-              variant="titleMedium"
-              style={{ color: theme.colors.onPrimaryContainer, fontWeight: 'bold' }}
+              variant="bodyLarge"
+              style={{ color: theme.colors.onPrimaryContainer, fontWeight: '600', fontSize: 14 }}
             >
               {user?.displayName || 'User'}
             </Text>
             <Text
               variant="bodySmall"
-              style={{ color: theme.colors.onPrimaryContainer, opacity: 0.8 }}
+              style={{ color: theme.colors.onPrimaryContainer, opacity: 0.8, fontSize: 12 }}
             >
               {user?.email}
             </Text>
@@ -252,15 +252,15 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 12,
+    paddingHorizontal: 12,
+    paddingBottom: 8,
   },
   menuButton: {
-    padding: 8,
+    padding: 6,
   },
   headerTitle: {
     fontWeight: 'bold',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   headerSpacer: {
     flex: 1,
@@ -290,17 +290,17 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   },
   userSection: {
-    padding: 20,
-    paddingBottom: 20,
+    padding: 12,
+    paddingBottom: 16,
     position: 'relative',
   },
   closeButton: {
     position: 'absolute',
-    right: 16,
-    padding: 8,
+    right: 12,
+    padding: 6,
   },
   userInfo: {
-    marginTop: 16,
+    marginTop: 8,
   },
   drawerItems: {
     flex: 1,
@@ -308,19 +308,20 @@ const styles = StyleSheet.create({
   drawerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    paddingHorizontal: 20,
+    padding: 12,
+    paddingHorizontal: 16,
   },
   drawerItemText: {
-    marginLeft: 16,
-    fontSize: 16,
+    marginLeft: 12,
+    fontSize: 14,
   },
   quickActions: {
-    paddingBottom: 16,
+    paddingBottom: 12,
   },
   sectionTitle: {
     fontWeight: 'bold',
-    marginBottom: 8,
-    marginLeft: 20,
+    marginBottom: 6,
+    marginLeft: 16,
+    fontSize: 13,
   },
 });

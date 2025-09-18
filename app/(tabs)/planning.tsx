@@ -293,13 +293,13 @@ export default function InsightsScreen(): React.JSX.Element {
                           <BarChart
                             data={barData}
                             width={chartWidth}
-                            height={200}
+                            height={140}
                             chartConfig={barChartConfig}
-                            showValuesOnTopOfBars={true}
+                            showValuesOnTopOfBars={false}
                             fromZero={true}
                             style={{
-                              marginVertical: 8,
-                              borderRadius: 8,
+                              marginVertical: 4,
+                              borderRadius: 6,
                             }}
                             withInnerLines={false}
                             showBarTops={false}
@@ -347,10 +347,10 @@ export default function InsightsScreen(): React.JSX.Element {
                               population: item.y,
                               color: item.color,
                               legendFontColor: '#000000',
-                              legendFontSize: 12,
+                              legendFontSize: 11,
                             }))}
-                            width={160}
-                            height={160}
+                            width={120}
+                            height={120}
                             chartConfig={{
                               backgroundColor: '#ffffff',
                               backgroundGradientFrom: '#ffffff',
@@ -359,7 +359,7 @@ export default function InsightsScreen(): React.JSX.Element {
                             }}
                             accessor="population"
                             backgroundColor="transparent"
-                            paddingLeft="15"
+                            paddingLeft="10"
                             absolute={false}
                             hasLegend={false}
                           />
@@ -579,9 +579,9 @@ const styles = StyleSheet.create({
   // Header Styles
   header: {
     backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'ios' ? 20 : 15,
-    paddingBottom: 12,
-    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 15 : 10,
+    paddingBottom: 8,
+    paddingHorizontal: 12,
   },
   headerContent: {
     flexDirection: 'row',
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   screenTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     letterSpacing: -0.3,
     marginBottom: 0,
@@ -600,12 +600,12 @@ const styles = StyleSheet.create({
   },
   headerActions: {
     flexDirection: 'row',
-    gap: 8,
+    gap: 6,
   },
   headerButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     backgroundColor: '#f9fafb',
     justifyContent: 'center',
     alignItems: 'center',
@@ -616,29 +616,29 @@ const styles = StyleSheet.create({
   // Content Styles
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
   },
   // Period Selector Styles
   periodSelectorCard: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   periodSelector: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 6,
   },
   periodButton: {
     flex: 1,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 6,
     backgroundColor: '#f9fafb',
     alignItems: 'center',
   },
@@ -646,7 +646,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   periodButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
     color: '#6b7280',
   },
@@ -658,32 +658,32 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   summaryContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#000000',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   summaryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 16,
+    gap: 12,
   },
   summaryItem: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 6,
     backgroundColor: '#f9fafb',
   },
   summaryLabel: {
@@ -695,7 +695,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   summaryAmount: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: '#000000',
   },
@@ -704,18 +704,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   chartContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   chartWrapper: {
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 8,
   },
 
   // Pie Chart Styles
@@ -723,62 +723,62 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   pieChartContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   pieChartWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 12,
+    marginTop: 8,
   },
   pieLegend: {
     flex: 1,
-    marginLeft: 16,
+    marginLeft: 12,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
   },
   legendText: {
     flex: 1,
   },
   legendCategory: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
     color: '#000000',
   },
   legendAmount: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#6b7280',
-    marginTop: 2,
+    marginTop: 1,
   },
   // Planning Card Styles
   planningCard: {
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   planningContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   planningStats: {
     flexDirection: 'row',
@@ -797,22 +797,22 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '700',
     color: '#000000',
   },
   // Quick Actions Styles
   quickActions: {
     flexDirection: 'row',
-    marginBottom: 12,
-    gap: 6,
+    marginBottom: 8,
+    gap: 4,
   },
   actionButton: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 6,
-    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    borderRadius: 8,
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
@@ -820,16 +820,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0,
   },
   actionIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+    marginBottom: 2,
     backgroundColor: '#f9fafb',
   },
   actionText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: '500',
     textAlign: 'center',
     color: '#000000',
@@ -839,10 +839,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
   },
   seeAllText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '500',
     color: '#6b7280',
   },
@@ -851,21 +851,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   sectionContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   // Planning Item Styles
   planningItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   planningItemBorder: {
     borderBottomWidth: 1,
@@ -878,9 +878,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   planningIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f9fafb',
@@ -889,13 +889,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   planningTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: 1,
     color: '#000000',
   },
   planningSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
   },
   planningItemRight: {
@@ -904,7 +904,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   planningAmount: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: '#000000',
   },
@@ -912,7 +912,7 @@ const styles = StyleSheet.create({
   savingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   savingsItemBorder: {
     borderBottomWidth: 1,
@@ -925,9 +925,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   savingsIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#f9fafb',
@@ -936,15 +936,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   savingsTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
-    marginBottom: 2,
+    marginBottom: 1,
     color: '#000000',
   },
   savingsSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#6b7280',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   miniProgressBar: {
     height: 4,
@@ -965,46 +965,46 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 12,
+    borderRadius: 10,
     elevation: 0,
     shadowOpacity: 0,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   metricsContent: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
   // Metrics Grid Styles
   metricsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 24,
+    gap: 6,
+    marginBottom: 16,
   },
   metricCard: {
     flex: 1,
     minWidth: '45%',
     backgroundColor: '#f9fafb',
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 12,
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 8,
     alignItems: 'center',
   },
   metricLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '500',
     color: '#6b7280',
-    marginBottom: 4,
+    marginBottom: 2,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   metricValue: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: '700',
     color: '#000000',
   },
   // Bottom Spacer
   bottomSpacer: {
-    height: 16,
+    height: 12,
   },
 });

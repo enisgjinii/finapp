@@ -1,5 +1,5 @@
 import { Tabs, Redirect } from 'expo-router';
-import { TrendingUp, DollarSign, User, Wallet, Receipt, Target, Settings } from 'lucide-react-native';
+import { Home, DollarSign, Target, User } from 'lucide-react-native';
 import { useAuth } from '../../src/providers/AuthProvider';
 import { View, Text } from 'react-native';
 import { useTheme } from 'react-native-paper';
@@ -32,21 +32,25 @@ function TabLayoutContent(): React.JSX.Element {
           tabBarInactiveTintColor: theme.colors.onSurfaceVariant,
           tabBarStyle: {
             backgroundColor: theme.colors.surface,
-            borderTopWidth: 1,
-            borderTopColor: theme.colors.outline,
-            height: 48 + insets.bottom,
-            paddingBottom: insets.bottom + 2,
-            paddingTop: 2,
-            paddingHorizontal: 4,
+            height: 60 + insets.bottom,
+            paddingBottom: insets.bottom,
+            paddingTop: 8,
+            paddingHorizontal: 8,
+            elevation: 8,
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: -2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
           },
           tabBarLabelStyle: {
-            fontSize: 9,
-            fontWeight: '500',
-            marginTop: 1,
+            fontSize: 12,
+            fontWeight: '600',
+            marginTop: 4,
           },
           tabBarItemStyle: {
-            paddingVertical: 1,
-            paddingHorizontal: 2,
+            paddingVertical: 4,
+            paddingHorizontal: 4,
+            minHeight: 44,
           },
         }}>
         <Tabs.Screen
@@ -54,52 +58,25 @@ function TabLayoutContent(): React.JSX.Element {
           options={{
             title: 'Home',
             tabBarIcon: ({ color }) => (
-              <TrendingUp size={18} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="money"
-          options={{
-            title: 'Money',
-            tabBarIcon: ({ color }) => (
-              <DollarSign size={18} color={color} />
+              <Home size={24} color={color} />
             ),
           }}
         />
         <Tabs.Screen
           name="accounts"
           options={{
-            title: 'Accounts',
+            title: 'Money',
             tabBarIcon: ({ color }) => (
-              <Wallet size={18} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="transactions"
-          options={{
-            title: 'Transactions',
-            tabBarIcon: ({ color }) => (
-              <Receipt size={18} color={color} />
+              <DollarSign size={24} color={color} />
             ),
           }}
         />
         <Tabs.Screen
           name="savings"
           options={{
-            title: 'Savings',
+            title: 'Goals',
             tabBarIcon: ({ color }) => (
-              <Target size={18} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: 'Settings',
-            tabBarIcon: ({ color }) => (
-              <Settings size={18} color={color} />
+              <Target size={24} color={color} />
             ),
           }}
         />
@@ -108,8 +85,20 @@ function TabLayoutContent(): React.JSX.Element {
           options={{
             title: 'Profile',
             tabBarIcon: ({ color }) => (
-              <User size={18} color={color} />
+              <User size={24} color={color} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="transactions"
+          options={{
+            href: null, // Hide from tab bar - accessible via Money tab
+          }}
+        />
+        <Tabs.Screen
+          name="settings"
+          options={{
+            href: null, // Hide from tab bar - accessible via Goals tab or menu
           }}
         />
         <Tabs.Screen
