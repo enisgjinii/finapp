@@ -1,13 +1,36 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, Card, SegmentedButtons, useTheme } from 'react-native-paper';
+import { StyleSheet, View, ScrollView, TouchableOpacity, Platform, Dimensions } from 'react-native';
+import { Text, Surface, useTheme } from 'react-native-paper';
 import { router } from 'expo-router';
 import { useTransactions } from '../../src/hooks/useTransactions';
 import { useAccounts } from '../../src/hooks/useAccounts';
 import { useInstallments } from '../../src/hooks/useInstallments';
 import { useSavings } from '../../src/hooks/useSavings';
 import { formatCurrency } from '../../src/utils/money';
-import { TrendingUp, Target, CreditCard, BarChart3, Plus } from 'lucide-react-native';
+import { TrendingUp, Target, CreditCard, BarChart3, Plus, MoreHorizontal } from 'lucide-react-native';
+import {
+  BarChart,
+  PieChart,
+  LineChart
+} from 'react-native-chart-kit';
+
+// Screen dimensions for charts
+const { width: screenWidth } = Dimensions.get('window');
+const chartWidth = screenWidth - 64; // Account for padding
+
+// Helper function to get category colors
+const getCategoryColor = (index: number): string => {
+  const colors = [
+    '#3b82f6', // blue
+    '#ef4444', // red
+    '#10b981', // green
+    '#f59e0b', // amber
+    '#8b5cf6', // purple
+    '#06b6d4', // cyan
+    '#f97316', // orange
+  ];
+  return colors[index % colors.length];
+};
 
 export default function InsightsScreen(): React.JSX.Element {
   const [selectedPeriod, setSelectedPeriod] = useState('month');
@@ -53,269 +76,495 @@ export default function InsightsScreen(): React.JSX.Element {
   const totalSavingsCurrent = savings.reduce((sum, s) => sum + s.currentAmount, 0);
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <Text variant="headlineMedium" style={[styles.screenTitle, { color: theme.colors.onBackground }]}>
-        Insights
-      </Text>
-
-      {/* View Switcher */}
-      <View style={styles.viewSwitcher}>
-        <TouchableOpacity
-          style={[styles.viewButton, activeView === 'reports' && { backgroundColor: theme.colors.primaryContainer }]}
-          onPress={() => setActiveView('reports')}
-        >
-          <BarChart3 size={20} color={activeView === 'reports' ? theme.colors.primary : theme.colors.onSurfaceVariant} />
-          <Text style={[styles.viewButtonText, { color: activeView === 'reports' ? theme.colors.primary : theme.colors.onSurfaceVariant }]}>
-            Reports
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.viewButton, activeView === 'planning' && { backgroundColor: theme.colors.primaryContainer }]}
-          onPress={() => setActiveView('planning')}
-        >
-          <Target size={20} color={activeView === 'planning' ? theme.colors.primary : theme.colors.onSurfaceVariant} />
-          <Text style={[styles.viewButtonText, { color: activeView === 'planning' ? theme.colors.primary : theme.colors.onSurfaceVariant }]}>
-            Planning
-          </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.headerLeft}>
+            <Text variant="headlineLarge" style={styles.screenTitle}>
+              Insights
+            </Text>
+          </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={[styles.headerButton, activeView === 'reports' && styles.headerButtonActive]}
+              onPress={() => setActiveView('reports')}
+              activeOpacity={0.7}
+            >
+              <BarChart3 size={16} color={activeView === 'reports' ? '#000000' : '#6b7280'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.headerButton, activeView === 'planning' && styles.headerButtonActive]}
+              onPress={() => setActiveView('planning')}
+              activeOpacity={0.7}
+            >
+              <Target size={16} color={activeView === 'planning' ? '#000000' : '#6b7280'} />
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
 
         {activeView === 'reports' ? (
           <>
             {/* Period Selector */}
-            <SegmentedButtons
-              value={selectedPeriod}
-              onValueChange={setSelectedPeriod}
-              buttons={[
-                { value: 'week', label: 'Week' },
-                { value: 'month', label: 'Month' },
-                { value: 'year', label: 'Year' },
-              ]}
-              style={styles.periodSelector}
-            />
+            <Surface style={styles.periodSelectorCard}>
+              <View style={styles.periodSelector}>
+                <TouchableOpacity
+                  style={[styles.periodButton, selectedPeriod === 'week' && styles.periodButtonActive]}
+                  onPress={() => setSelectedPeriod('week')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.periodButtonText, selectedPeriod === 'week' && styles.periodButtonTextActive]}>
+                    Week
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.periodButton, selectedPeriod === 'month' && styles.periodButtonActive]}
+                  onPress={() => setSelectedPeriod('month')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.periodButtonText, selectedPeriod === 'month' && styles.periodButtonTextActive]}>
+                    Month
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.periodButton, selectedPeriod === 'year' && styles.periodButtonActive]}
+                  onPress={() => setSelectedPeriod('year')}
+                  activeOpacity={0.7}
+                >
+                  <Text style={[styles.periodButtonText, selectedPeriod === 'year' && styles.periodButtonTextActive]}>
+                    Year
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Surface>
 
             {/* Financial Summary */}
-            <Card style={[styles.summaryCard, {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.outline
-            }]}>
-              <Card.Content>
+            <Surface style={styles.summaryCard}>
+              <View style={styles.summaryContent}>
                 <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
                   {selectedPeriod.charAt(0).toUpperCase() + selectedPeriod.slice(1)} Summary
                 </Text>
 
                 <View style={styles.summaryRow}>
-                  <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                    <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
+                  <View style={styles.summaryItem}>
+                    <Text variant="bodySmall" style={styles.summaryLabel}>
                       Incomes
                     </Text>
-                    <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.primary }]}>
-                      ₺{totalIncome.toLocaleString()}
+                    <Text variant="headlineSmall" style={styles.summaryAmount}>
+                      €{totalIncome.toLocaleString()}
                     </Text>
                   </View>
 
-                  <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                    <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
+                  <View style={styles.summaryItem}>
+                    <Text variant="bodySmall" style={styles.summaryLabel}>
                       Expenses
                     </Text>
-                    <Text variant="titleLarge" style={[styles.amount, { color: theme.colors.error }]}>
-                      ₺{totalExpenses.toLocaleString()}
+                    <Text variant="headlineSmall" style={[styles.summaryAmount, { color: '#dc2626' }]}>
+                      €{totalExpenses.toLocaleString()}
                     </Text>
                   </View>
 
-                  <View style={[styles.summaryItem, { backgroundColor: theme.colors.surfaceVariant }]}>
-                    <Text variant="bodyMedium" style={[styles.label, { color: theme.colors.onSurfaceVariant }]}>
+                  <View style={styles.summaryItem}>
+                    <Text variant="bodySmall" style={styles.summaryLabel}>
                       Net
                     </Text>
-                    <Text variant="titleLarge" style={[styles.amount, { color: netIncome >= 0 ? theme.colors.primary : theme.colors.error }]}>
-                      ₺{netIncome.toLocaleString()}
+                    <Text variant="headlineSmall" style={[styles.summaryAmount, { color: netIncome >= 0 ? '#000000' : '#dc2626' }]}>
+                      €{netIncome.toLocaleString()}
                     </Text>
                   </View>
                 </View>
-              </Card.Content>
-            </Card>
+              </View>
+            </Surface>
 
-            {/* Top Categories */}
+            {/* Spending Analytics */}
             {filteredTransactions.length > 0 && (
-              <Card style={[styles.chartCard, {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.outline
-              }]}>
-                <Card.Content>
-                  <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                    Spending Breakdown
-                  </Text>
-                  <View style={styles.chartPlaceholder}>
-                    <Text variant="bodyLarge" style={{ color: theme.colors.onSurfaceVariant }}>
-                      Detailed analytics coming soon
+              <View style={styles.analyticsContainer}>
+                {/* Key Metrics */}
+                <Surface style={styles.metricsCard}>
+                  <View style={styles.metricsContent}>
+                    <Text variant="titleMedium" style={styles.sectionTitle}>
+                      Key Metrics
                     </Text>
-                    <Text variant="bodySmall" style={{ color: theme.colors.onSurfaceVariant, marginTop: 8 }}>
-                      {filteredTransactions.filter(tx => tx.amount < 0).length} expense transactions this {selectedPeriod}
-                    </Text>
+                    <View style={styles.metricsGrid}>
+                      <View style={styles.metricCard}>
+                        <Text variant="bodySmall" style={styles.metricLabel}>
+                          Avg Transaction
+                        </Text>
+                        <Text variant="headlineSmall" style={styles.metricValue}>
+                          €{Math.abs(filteredTransactions.filter(tx => tx.amount < 0).reduce((sum, tx) => sum + tx.amount, 0) / filteredTransactions.filter(tx => tx.amount < 0).length || 0).toFixed(0)}
+                        </Text>
+                      </View>
+
+                      <View style={styles.metricCard}>
+                        <Text variant="bodySmall" style={styles.metricLabel}>
+                          Transactions
+                        </Text>
+                        <Text variant="headlineSmall" style={styles.metricValue}>
+                          {filteredTransactions.filter(tx => tx.amount < 0).length}
+                        </Text>
+                      </View>
+
+                      <View style={styles.metricCard}>
+                        <Text variant="bodySmall" style={styles.metricLabel}>
+                          Largest Expense
+                        </Text>
+                        <Text variant="headlineSmall" style={styles.metricValue}>
+                          €{Math.abs(Math.min(...filteredTransactions.filter(tx => tx.amount < 0).map(tx => tx.amount))).toLocaleString()}
+                        </Text>
+                      </View>
+
+                      <View style={styles.metricCard}>
+                        <Text variant="bodySmall" style={styles.metricLabel}>
+                          Active Days
+                        </Text>
+                        <Text variant="headlineSmall" style={styles.metricValue}>
+                          {new Set(filteredTransactions.map(tx => {
+                            const date = tx.date instanceof Date ? tx.date : new Date(tx.date);
+                            return date.toDateString();
+                          })).size}
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                </Card.Content>
-              </Card>
+                </Surface>
+
+                {/* Spending Trend Chart */}
+                <Surface style={styles.chartCard}>
+                  <View style={styles.chartContent}>
+                    <Text variant="titleMedium" style={styles.sectionTitle}>
+                      Spending Trend
+                    </Text>
+                    {(() => {
+                      const expenseTransactions = filteredTransactions.filter(tx => tx.amount < 0);
+                      const weeklyData = [];
+
+                      // Group by weeks for the last 7 weeks
+                      for (let i = 6; i >= 0; i--) {
+                        const weekStart = new Date();
+                        weekStart.setDate(weekStart.getDate() - (i * 7));
+
+                        const weekEnd = new Date(weekStart);
+                        weekEnd.setDate(weekEnd.getDate() + 6);
+
+                        const weekExpenses = expenseTransactions.filter(tx => {
+                          const txDate = tx.date instanceof Date ? tx.date : new Date(tx.date);
+                          return txDate >= weekStart && txDate <= weekEnd;
+                        }).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+
+                        weeklyData.push({
+                          week: `Week ${7-i}`,
+                          amount: weekExpenses,
+                          x: `W${7-i}`,
+                          y: weekExpenses
+                        });
+                      }
+
+                      const barData = {
+                        labels: weeklyData.map(d => d.x),
+                        datasets: [{
+                          data: weeklyData.map(d => d.y),
+                        }],
+                      };
+
+                      const barChartConfig = {
+                        backgroundColor: '#ffffff',
+                        backgroundGradientFrom: '#ffffff',
+                        backgroundGradientTo: '#ffffff',
+                        decimalPlaces: 0,
+                        color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                        labelColor: (opacity = 1) => `rgba(107, 114, 128, ${opacity})`,
+                        style: {
+                          borderRadius: 8,
+                        },
+                        propsForLabels: {
+                          fontSize: 10,
+                          fontWeight: '500',
+                        },
+                      };
+
+                      return (
+                        <View style={styles.chartWrapper}>
+                          <BarChart
+                            data={barData}
+                            width={chartWidth}
+                            height={200}
+                            chartConfig={barChartConfig}
+                            showValuesOnTopOfBars={true}
+                            fromZero={true}
+                            style={{
+                              marginVertical: 8,
+                              borderRadius: 8,
+                            }}
+                            withInnerLines={false}
+                            showBarTops={false}
+                          />
+                        </View>
+                      );
+                    })()}
+                  </View>
+                </Surface>
+
+                {/* Category Breakdown with Pie Chart */}
+                {(() => {
+                  const expenseTransactions = filteredTransactions.filter(tx => tx.amount < 0);
+                  const totalExpenses = Math.abs(expenseTransactions.reduce((sum, tx) => sum + tx.amount, 0));
+
+                  // Group by category (using description as category for now)
+                  const categoryMap = new Map<string, number>();
+                  expenseTransactions.forEach(tx => {
+                    const category = tx.category || tx.description?.split(' ')[0] || 'Other';
+                    categoryMap.set(category, (categoryMap.get(category) || 0) + Math.abs(tx.amount));
+                  });
+
+                  const topCategories = Array.from(categoryMap.entries())
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                  const pieData = topCategories.map(([category, amount], index) => ({
+                    x: category.length > 10 ? category.substring(0, 10) + '...' : category,
+                    y: amount,
+                    percentage: ((amount / totalExpenses) * 100).toFixed(1),
+                    color: getCategoryColor(index)
+                  }));
+
+                  return (
+                    <Surface style={styles.pieChartCard}>
+                      <View style={styles.pieChartContent}>
+                        <Text variant="titleMedium" style={styles.sectionTitle}>
+                          Category Breakdown
+                        </Text>
+
+                        <View style={styles.pieChartWrapper}>
+                          <PieChart
+                            data={pieData.map(item => ({
+                              name: item.x,
+                              population: item.y,
+                              color: item.color,
+                              legendFontColor: '#000000',
+                              legendFontSize: 12,
+                            }))}
+                            width={160}
+                            height={160}
+                            chartConfig={{
+                              backgroundColor: '#ffffff',
+                              backgroundGradientFrom: '#ffffff',
+                              backgroundGradientTo: '#ffffff',
+                              color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                            }}
+                            accessor="population"
+                            backgroundColor="transparent"
+                            paddingLeft="15"
+                            absolute={false}
+                            hasLegend={false}
+                          />
+
+                          <View style={styles.pieLegend}>
+                            {pieData.map((item, index) => (
+                              <View key={index} style={styles.legendItem}>
+                                <View style={[styles.legendDot, { backgroundColor: item.color }]} />
+                                <View style={styles.legendText}>
+                                  <Text variant="bodySmall" style={styles.legendCategory} numberOfLines={1}>
+                                    {item.x}
+                                  </Text>
+                                  <Text variant="bodySmall" style={styles.legendAmount}>
+                                    €{item.y.toLocaleString()} ({item.percentage}%)
+                                  </Text>
+                                </View>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    </Surface>
+                  );
+                })()}
+              </View>
             )}
           </>
         ) : (
           <>
             {/* Planning Overview */}
-            <Card style={[styles.planningCard, {
-              backgroundColor: theme.colors.surface,
-              borderColor: theme.colors.outline
-            }]}>
-              <Card.Content>
-                <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
+            <Surface style={styles.planningCard}>
+              <View style={styles.planningContent}>
+                <Text variant="titleMedium" style={styles.sectionTitle}>
                   Planning Overview
                 </Text>
 
                 <View style={styles.planningStats}>
                   <View style={styles.planningStat}>
-                    <Text variant="bodyMedium" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    <Text variant="bodySmall" style={styles.statLabel}>
                       Active Installments
                     </Text>
-                    <Text variant="headlineSmall" style={[styles.statValue, { color: theme.colors.secondary }]}>
+                    <Text variant="headlineSmall" style={styles.statValue}>
                       {activeInstallments.length}
                     </Text>
                   </View>
 
                   <View style={styles.planningStat}>
-                    <Text variant="bodyMedium" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    <Text variant="bodySmall" style={styles.statLabel}>
                       Savings Goals
                     </Text>
-                    <Text variant="headlineSmall" style={[styles.statValue, { color: theme.colors.tertiary }]}>
+                    <Text variant="headlineSmall" style={styles.statValue}>
                       {activeSavings.length}
                     </Text>
                   </View>
 
                   <View style={styles.planningStat}>
-                    <Text variant="bodyMedium" style={[styles.statLabel, { color: theme.colors.onSurfaceVariant }]}>
+                    <Text variant="bodySmall" style={styles.statLabel}>
                       Savings Progress
                     </Text>
-                    <Text variant="headlineSmall" style={[styles.statValue, { color: theme.colors.primary }]}>
+                    <Text variant="headlineSmall" style={styles.statValue}>
                       {totalSavingsTarget > 0 ? Math.round((totalSavingsCurrent / totalSavingsTarget) * 100) : 0}%
                     </Text>
                   </View>
                 </View>
-              </Card.Content>
-            </Card>
+              </View>
+            </Surface>
 
             {/* Quick Actions */}
-            <View style={styles.actionsGrid}>
+            <View style={styles.quickActions}>
               <TouchableOpacity
-                style={[styles.actionCard, { backgroundColor: theme.colors.secondaryContainer }]}
+                style={styles.actionButton}
                 onPress={() => router.push('/installments/add')}
+                activeOpacity={0.7}
               >
-                <CreditCard size={24} color={theme.colors.secondary} />
-                <Text variant="bodyMedium" style={[styles.actionText, { color: theme.colors.secondary }]}>
+                <View style={styles.actionIcon}>
+                  <CreditCard size={14} color="#000000" />
+                </View>
+                <Text variant="bodySmall" style={styles.actionText}>
                   Add Installment
                 </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={[styles.actionCard, { backgroundColor: theme.colors.tertiaryContainer }]}
+                style={styles.actionButton}
                 onPress={() => router.push('/savings/add')}
+                activeOpacity={0.7}
               >
-                <Target size={24} color={theme.colors.tertiary} />
-                <Text variant="bodyMedium" style={[styles.actionText, { color: theme.colors.tertiary }]}>
+                <View style={styles.actionIcon}>
+                  <Target size={14} color="#000000" />
+                </View>
+                <Text variant="bodySmall" style={styles.actionText}>
                   Add Savings Goal
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Recent Planning Items */}
+            {/* Upcoming Payments */}
             {activeInstallments.length > 0 && (
-              <Card style={[styles.sectionCard, {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.outline
-              }]}>
-                <Card.Content>
-                  <View style={styles.sectionHeader}>
-                    <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                      Upcoming Payments
+              <>
+                <View style={styles.sectionHeader}>
+                  <Text variant="titleMedium" style={styles.sectionTitle}>
+                    Upcoming Payments
+                  </Text>
+                  <TouchableOpacity onPress={() => router.push('/installments')} activeOpacity={0.7}>
+                    <Text variant="bodySmall" style={styles.seeAllText}>
+                      See All
                     </Text>
-                    <TouchableOpacity onPress={() => router.push('/installments')}>
-                      <Text variant="bodyMedium" style={[styles.seeAllText, { color: theme.colors.primary }]}>
-                        See All
-                      </Text>
-                    </TouchableOpacity>
+                  </TouchableOpacity>
+                </View>
+
+                <Surface style={styles.sectionCard}>
+                  <View style={styles.sectionContent}>
+                    {activeInstallments.slice(0, 2).map((installment, index) => {
+                      const isLast = index === activeInstallments.slice(0, 2).length - 1;
+                      return (
+                        <TouchableOpacity
+                          key={installment.id}
+                          style={[styles.planningItem, !isLast && styles.planningItemBorder]}
+                          onPress={() => router.push('/installments')}
+                          activeOpacity={0.7}
+                        >
+                          <View style={styles.planningItemLeft}>
+                            <View style={styles.planningIcon}>
+                              <CreditCard size={14} color="#6b7280" />
+                            </View>
+                            <View style={styles.planningItemDetails}>
+                              <Text variant="bodyMedium" style={styles.planningTitle}>
+                                {installment.title}
+                              </Text>
+                              <Text variant="bodySmall" style={styles.planningSubtitle}>
+                                {installment.monthsPaid} of {installment.monthsTotal} payments
+                              </Text>
+                            </View>
+                          </View>
+                          <View style={styles.planningItemRight}>
+                            <Text variant="bodyMedium" style={styles.planningAmount}>
+                              {formatCurrency(installment.monthlyAmount)}
+                            </Text>
+                            <MoreHorizontal size={12} color="#6b7280" />
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
-                  {activeInstallments.slice(0, 2).map((installment) => (
-                    <View key={installment.id} style={styles.planningItem}>
-                      <View style={styles.planningItemLeft}>
-                        <View style={[styles.planningIcon, { backgroundColor: theme.colors.secondaryContainer }]}>
-                          <CreditCard size={16} color={theme.colors.secondary} />
-                        </View>
-                        <View>
-                          <Text variant="bodyMedium" style={[styles.planningTitle, { color: theme.colors.onSurface }]}>
-                            {installment.title}
-                          </Text>
-                          <Text variant="bodySmall" style={[styles.planningSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-                            {installment.monthsPaid} of {installment.monthsTotal} payments
-                          </Text>
-                        </View>
-                      </View>
-                      <Text variant="bodyMedium" style={[styles.planningAmount, { color: theme.colors.onSurface }]}>
-                        {formatCurrency(installment.monthlyAmount)}
-                      </Text>
-                    </View>
-                  ))}
-                </Card.Content>
-              </Card>
+                </Surface>
+              </>
             )}
 
             {activeSavings.length > 0 && (
-              <Card style={[styles.sectionCard, {
-                backgroundColor: theme.colors.surface,
-                borderColor: theme.colors.outline
-              }]}>
-                <Card.Content>
-                  <View style={styles.sectionHeader}>
-                    <Text variant="titleLarge" style={[styles.sectionTitle, { color: theme.colors.onSurface }]}>
-                      Savings Goals
+              <>
+                <View style={styles.sectionHeader}>
+                  <Text variant="titleMedium" style={styles.sectionTitle}>
+                    Savings Goals
+                  </Text>
+                  <TouchableOpacity onPress={() => router.push('/savings')} activeOpacity={0.7}>
+                    <Text variant="bodySmall" style={styles.seeAllText}>
+                      See All
                     </Text>
-                    <TouchableOpacity onPress={() => router.push('/savings')}>
-                      <Text variant="bodyMedium" style={[styles.seeAllText, { color: theme.colors.primary }]}>
-                        See All
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                  {activeSavings.slice(0, 2).map((saving) => {
-                    const progress = Math.min(saving.currentAmount / saving.targetAmount, 1);
-                    return (
-                      <View key={saving.id} style={styles.savingsItem}>
-                        <View style={styles.savingsItemLeft}>
-                          <View style={[styles.savingsIcon, { backgroundColor: theme.colors.tertiaryContainer }]}>
-                            <Target size={16} color={theme.colors.tertiary} />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text variant="bodyMedium" style={[styles.savingsTitle, { color: theme.colors.onSurface }]}>
-                              {saving.title}
-                            </Text>
-                            <Text variant="bodySmall" style={[styles.savingsSubtitle, { color: theme.colors.onSurfaceVariant }]}>
-                              {formatCurrency(saving.currentAmount)} of {formatCurrency(saving.targetAmount)}
-                            </Text>
-                            <View style={styles.miniProgressBar}>
-                              <View
-                                style={[styles.miniProgressFill, {
-                                  width: `${progress * 100}%`,
-                                  backgroundColor: theme.colors.primary
-                                }]}
-                              />
+                  </TouchableOpacity>
+                </View>
+
+                <Surface style={styles.sectionCard}>
+                  <View style={styles.sectionContent}>
+                    {activeSavings.slice(0, 2).map((saving, index) => {
+                      const progress = Math.min(saving.currentAmount / saving.targetAmount, 1);
+                      const isLast = index === activeSavings.slice(0, 2).length - 1;
+                      return (
+                        <TouchableOpacity
+                          key={saving.id}
+                          style={[styles.savingsItem, !isLast && styles.savingsItemBorder]}
+                          onPress={() => router.push('/savings')}
+                          activeOpacity={0.7}
+                        >
+                          <View style={styles.savingsItemLeft}>
+                            <View style={styles.savingsIcon}>
+                              <Target size={14} color="#6b7280" />
+                            </View>
+                            <View style={styles.savingsItemDetails}>
+                              <Text variant="bodyMedium" style={styles.savingsTitle}>
+                                {saving.title}
+                              </Text>
+                              <Text variant="bodySmall" style={styles.savingsSubtitle}>
+                                {formatCurrency(saving.currentAmount)} of {formatCurrency(saving.targetAmount)}
+                              </Text>
+                              <View style={styles.miniProgressBar}>
+                                <View
+                                  style={[styles.miniProgressFill, {
+                                    width: `${progress * 100}%`
+                                  }]}
+                                />
+                              </View>
                             </View>
                           </View>
-                        </View>
-                      </View>
-                    );
-                  })}
-                </Card.Content>
-              </Card>
+                          <MoreHorizontal size={12} color="#6b7280" />
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </Surface>
+              </>
             )}
           </>
         )}
 
+        <View style={styles.bottomSpacer} />
       </ScrollView>
 
     </View>
@@ -325,54 +574,103 @@ export default function InsightsScreen(): React.JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  // Header Styles
+  header: {
+    backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'ios' ? 20 : 15,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  headerLeft: {
+    flex: 1,
   },
   screenTitle: {
-    textAlign: 'center',
-    marginTop: 48,
-    marginBottom: 24,
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: '700',
-    letterSpacing: -0.025,
+    letterSpacing: -0.3,
+    marginBottom: 0,
+    color: '#000000',
   },
-  viewSwitcher: {
+  headerActions: {
     flexDirection: 'row',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 12,
-    padding: 4,
-  },
-  viewButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
     gap: 8,
   },
-  viewButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+  headerButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#f9fafb',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 120,
+  headerButtonActive: {
+    backgroundColor: '#e5e7eb',
   },
-  periodSelector: {
-    marginBottom: 20,
+  // Content Styles
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
   },
-  summaryCard: {
-    marginBottom: 20,
+  // Period Selector Styles
+  periodSelectorCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  periodSelector: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  periodButton: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#f9fafb',
+    alignItems: 'center',
+  },
+  periodButtonActive: {
+    backgroundColor: '#000000',
+  },
+  periodButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  periodButtonTextActive: {
+    color: '#ffffff',
+  },
+  // Summary Card Styles
+  summaryCard: {
+    backgroundColor: '#ffffff',
     borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  summaryContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
+    color: '#000000',
     marginBottom: 16,
   },
   summaryRow: {
@@ -386,34 +684,101 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 12,
     borderRadius: 8,
+    backgroundColor: '#f9fafb',
   },
-  label: {
-    fontSize: 12,
+  summaryLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#6b7280',
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  amount: {
+  summaryAmount: {
     fontSize: 18,
     fontWeight: '700',
+    color: '#000000',
   },
+  // Chart Card Styles
   chartCard: {
-    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
+    marginBottom: 12,
   },
-  chartPlaceholder: {
+  chartContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  chartWrapper: {
     alignItems: 'center',
-    paddingVertical: 20,
+    marginTop: 12,
   },
-  planningCard: {
-    marginBottom: 20,
+
+  // Pie Chart Styles
+  pieChartCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     borderRadius: 12,
     elevation: 0,
     shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  pieChartContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  pieChartWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 12,
+  },
+  pieLegend: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    marginRight: 8,
+  },
+  legendText: {
+    flex: 1,
+  },
+  legendCategory: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#000000',
+  },
+  legendAmount: {
+    fontSize: 11,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  // Planning Card Styles
+  planningCard: {
+    backgroundColor: '#ffffff',
     borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  planningContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
   },
   planningStats: {
     flexDirection: 'row',
@@ -424,7 +789,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#6b7280',
     marginBottom: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -432,112 +799,212 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: '700',
+    color: '#000000',
   },
-  actionsGrid: {
+  // Quick Actions Styles
+  quickActions: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
+    marginBottom: 12,
+    gap: 6,
   },
-  actionCard: {
+  actionButton: {
     flex: 1,
-    aspectRatio: 1,
-    borderRadius: 12,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 16,
-  },
-  actionText: {
-    fontSize: 12,
-    fontWeight: '500',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  sectionCard: {
-    marginBottom: 20,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 6,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
     elevation: 0,
     shadowOpacity: 0,
-    borderWidth: 1,
   },
+  actionIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+    backgroundColor: '#f9fafb',
+  },
+  actionText: {
+    fontSize: 10,
+    fontWeight: '500',
+    textAlign: 'center',
+    color: '#000000',
+  },
+  // Section Headers
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   seeAllText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '500',
+    color: '#6b7280',
   },
+  // Section Card Styles
+  sectionCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  sectionContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  // Planning Item Styles
   planningItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
+  },
+  planningItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    borderBottomColor: '#f3f4f6',
   },
   planningItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 12,
   },
   planningIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
-    marginRight: 12,
+    justifyContent: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  planningItemDetails: {
+    flex: 1,
   },
   planningTitle: {
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: 2,
+    color: '#000000',
   },
   planningSubtitle: {
     fontSize: 12,
-    marginTop: 2,
+    color: '#6b7280',
+  },
+  planningItemRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   planningAmount: {
     fontSize: 14,
     fontWeight: '600',
+    color: '#000000',
   },
+  // Savings Item Styles
   savingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+  },
+  savingsItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
+    borderBottomColor: '#f3f4f6',
   },
   savingsItemLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    gap: 12,
   },
   savingsIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 6,
-    justifyContent: 'center',
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
-    marginRight: 12,
+    justifyContent: 'center',
+    backgroundColor: '#f9fafb',
+  },
+  savingsItemDetails: {
+    flex: 1,
   },
   savingsTitle: {
     fontSize: 14,
     fontWeight: '500',
+    marginBottom: 2,
+    color: '#000000',
   },
   savingsSubtitle: {
     fontSize: 12,
-    marginTop: 2,
+    color: '#6b7280',
+    marginBottom: 8,
   },
   miniProgressBar: {
     height: 4,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: '#f3f4f6',
     borderRadius: 2,
-    marginTop: 8,
   },
   miniProgressFill: {
     height: '100%',
     borderRadius: 2,
+    backgroundColor: '#000000',
+  },
+  // Analytics Container
+  analyticsContainer: {
+    marginBottom: 12,
+  },
+  // Metrics Card Styles
+  metricsCard: {
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    elevation: 0,
+    shadowOpacity: 0,
+    marginBottom: 12,
+  },
+  metricsContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+  },
+  // Metrics Grid Styles
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 24,
+  },
+  metricCard: {
+    flex: 1,
+    minWidth: '45%',
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+  },
+  metricLabel: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#6b7280',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  // Bottom Spacer
+  bottomSpacer: {
+    height: 16,
   },
 });

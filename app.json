@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "MyFinance",
+    "slug": "myfinance",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,11 +11,11 @@
     "ios": {
       "supportsTablet": true,
       "googleServicesFile": "./GoogleService-Info.plist",
-      "bundleIdentifier": "com.enisgjini20.boltexponativewind"
+      "bundleIdentifier": "com.enisgjini20.myfinance"
     },
     "android": {
       "googleServicesFile": "./google-services.json",
-      "package": "com.enisgjini20.boltexponativewind"
+      "package": "com.enisgjini20.myfinance"
     },
     "web": {
       "bundler": "metro",
