@@ -23,20 +23,15 @@ if (getApps().length === 0) {
   app = getApps()[0];
 }
 
-// Initialize Firebase services
+// Initialize Firebase Auth with platform-specific persistence
 export const auth = Platform.OS === 'web' 
   ? getAuth(app)
   : initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage)
     });
+
+// Initialize Firebase services
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-
-// Connect to emulators in development (optional)
-// if (__DEV__ && !auth._delegate._config?.emulator) {
-//   connectAuthEmulator(auth, 'http://localhost:9099');
-//   connectFirestoreEmulator(db, 'localhost', 8080);
-//   connectStorageEmulator(storage, 'localhost', 9199);
-// }
 
 export default app;

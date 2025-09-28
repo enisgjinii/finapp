@@ -1,52 +1,46 @@
 import { GoogleAuthProvider } from 'firebase/auth';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
+import { Platform } from 'react-native';
 
-// Complete the auth session
+// Complete the auth session for Expo
 WebBrowser.maybeCompleteAuthSession();
 
-// Google Sign-In Configuration for Expo
+// Google OAuth Configuration
 export const GOOGLE_CONFIG = {
   // Web Client ID from Firebase Console
   webClientId: '525395309052-jph56iko8clbj0vtmp25f7r1mj34b0bq.apps.googleusercontent.com',
-
-  // iOS Client ID (if you have iOS app)
-  iosClientId: '',
-
-  // Android Client ID (if you have Android app)
-  androidClientId: '',
-
-  // Redirect URI scheme (matches app.json scheme)
-  redirectUri: AuthSession.makeRedirectUri({
-    scheme: 'myapp',
-    path: 'auth'
-  }),
-
-  // Additional configuration (optional)
-  scopes: ['profile', 'email'],
+  
+  // OAuth scopes
+  scopes: ['openid', 'profile', 'email'],
+  
+  // Additional parameters
+  additionalParameters: {},
+  
+  // Custom parameters for Google OAuth
   customParameters: {
-    prompt: 'select_account'
-  }
+    prompt: 'select_account',
+  },
 };
 
-// Expo Google Sign-In Setup Instructions:
-//
-// 1. Go to Firebase Console: https://console.firebase.google.com/
-// 2. Select your project (finapp-551d3)
-// 3. Go to Authentication > Sign-in method
-// 4. Click on "Google" provider
-// 5. Click "Enable"
-// 6. Copy the "Web client ID" and replace YOUR_WEB_CLIENT_ID above
-// 7. Add your domain to authorized domains if needed
-//
-// For Expo apps:
-// 8. Update app.json with proper redirect URIs:
-//    {
-//      "expo": {
-//        "scheme": "your-app-scheme"
-//      }
-//    }
-//
-// 9. Use expo-auth-session for Google Sign-In instead of @react-native-google-signin
+// Create redirect URI for Expo
+export const getRedirectUri = () => {
+  if (Platform.OS === 'web') {
+    return `${window.location.origin}/auth/callback`;
+  }
+  
+  return AuthSession.makeRedirectUri({
+    scheme: 'myapp',
+    path: 'auth/callback'
+  });
+};
+
+// Google OAuth endpoints
+export const GOOGLE_OAUTH_ENDPOINTS = {
+  authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+  tokenEndpoint: 'https://oauth2.googleapis.com/token',
+  revocationEndpoint: 'https://oauth2.googleapis.com/revoke',
+  userInfoEndpoint: 'https://www.googleapis.com/oauth2/v2/userinfo',
+};
 
 export default GOOGLE_CONFIG;
