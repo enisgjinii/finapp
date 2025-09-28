@@ -1,7 +1,6 @@
-import { GoogleAuthProvider } from 'firebase/auth';
+import { Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
-import { Platform } from 'react-native';
 
 // Complete the auth session for Expo
 WebBrowser.maybeCompleteAuthSession();
@@ -23,12 +22,17 @@ export const GOOGLE_CONFIG = {
   },
 };
 
-// Create redirect URI for Expo
+// Create redirect URI for different platforms
 export const getRedirectUri = () => {
   if (Platform.OS === 'web') {
-    return `${window.location.origin}/auth/callback`;
+    // For web, use the current origin
+    if (typeof window !== 'undefined') {
+      return `${window.location.origin}/auth/callback`;
+    }
+    return 'http://localhost:8081/auth/callback';
   }
   
+  // For mobile, use Expo's redirect URI
   return AuthSession.makeRedirectUri({
     scheme: 'myapp',
     path: 'auth/callback'
